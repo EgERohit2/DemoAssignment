@@ -21,18 +21,18 @@ public interface TaskRepository extends JpaRepository<Task, Integer> {
 			Class<TasksDto> class1);
 
 	//04-04-2023
-	List<Task> findByStatusAndStartDateBetween(TaskStatus status, LocalDate startDate, LocalDate endDate);
-
-	List<Task> findByStatusAndStartDateAfter(TaskStatus status, LocalDate startDate);
-
-	List<Task> findByStartDateBetween(LocalDate startDate, LocalDate endDate);
-
-	List<Task> findByStatus(TaskStatus status);
-
-	List<Task> findByStartDateAfter(LocalDate startDate);
-
-	List<Task> findByStartDateBefore(LocalDate endDate);
-
-	
+//	List<Task> findByStatusAndStartDateBetween(TaskStatus status, LocalDate startDate, LocalDate endDate);
+//
+//	List<Task> findByStatusAndStartDateAfter(TaskStatus status, LocalDate startDate);
+//
+//	List<Task> findByStartDateBetween(LocalDate startDate, LocalDate endDate);
+//
+//	List<Task> findByStatus(TaskStatus status);
+//
+//	List<Task> findByStartDateAfter(LocalDate startDate);
+//
+//	List<Task> findByStartDateBefore(LocalDate endDate);
+//
+//	
 
 }

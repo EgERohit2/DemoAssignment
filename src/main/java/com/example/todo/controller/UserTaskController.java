@@ -36,7 +36,7 @@ public class UserTaskController {
 	public ResponseEntity<?> postAllData(@RequestBody UserTask userTask) {
 		try {
 			userTaskService.saveUserTask(userTask);
-			return new ResponseEntity<>(new SuccessResponseDto("success", "Data posted", null), HttpStatus.CREATED);
+			return new ResponseEntity<>(new SuccessResponseDto("success", "Data posted", userTask), HttpStatus.CREATED);
 		} catch (Exception e) {
 			return new ResponseEntity<>(new ErrorResponseDto("Error ", "No data found", e.getMessage()),
 					HttpStatus.BAD_REQUEST);

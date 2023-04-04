@@ -120,34 +120,34 @@ public class TaskController {
 	}
 	
 	//04-04-2023 4.01pm (not working)
-	@GetMapping("/tasks")
-	public ResponseEntity<List<TaskDto>> getTasksByStatusAndDate(
-	        @RequestParam(value = "status", required = false) TaskStatus status,
-	        @RequestParam(value = "startDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
-	        @RequestParam(value = "endDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {
-
-	    List<Task> tasks;
-	    if (status != null && startDate != null && endDate != null) {
-	        tasks = taskRepository.findByStatusAndStartDateBetween(status, startDate, endDate);
-	    } else if (status != null && startDate != null) {
-	        tasks = taskRepository.findByStatusAndStartDateAfter(status, startDate);
-	    } else if (status != null && endDate != null) {
-	        tasks = taskRepository.findByStatusAndStartDateAfter(status, endDate);
-	    } else if (startDate != null && endDate != null) {
-	        tasks = taskRepository.findByStartDateBetween(startDate, endDate);
-	    } else if (status != null) {
-	        tasks = taskRepository.findByStatus(status);
-	    } else if (startDate != null) {
-	        tasks = taskRepository.findByStartDateAfter(startDate);
-	    } else if (endDate != null) {
-	        tasks = taskRepository.findByStartDateBefore(endDate);
-	    } else {
-	        tasks = taskRepository.findAll();
-	    }
-
-	    List<TaskDto> taskDtos = tasks.stream().map(TaskDto::new).collect(Collectors.toList());
-
-	    return ResponseEntity.ok(taskDtos);
-	}
+//	@GetMapping("/tasks")
+//	public ResponseEntity<List<TaskDto>> getTasksByStatusAndDate(
+//	        @RequestParam(value = "status", required = false) TaskStatus status,
+//	        @RequestParam(value = "startDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+//	        @RequestParam(value = "endDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {
+//
+//	    List<Task> tasks;
+//	    if (status != null && startDate != null && endDate != null) {
+//	        tasks = taskRepository.findByStatusAndStartDateBetween(status, startDate, endDate);
+//	    } else if (status != null && startDate != null) {
+//	        tasks = taskRepository.findByStatusAndStartDateAfter(status, startDate);
+//	    } else if (status != null && endDate != null) {
+//	        tasks = taskRepository.findByStatusAndStartDateAfter(status, endDate);
+//	    } else if (startDate != null && endDate != null) {
+//	        tasks = taskRepository.findByStartDateBetween(startDate, endDate);
+//	    } else if (status != null) {
+//	        tasks = taskRepository.findByStatus(status);
+//	    } else if (startDate != null) {
+//	        tasks = taskRepository.findByStartDateAfter(startDate);
+//	    } else if (endDate != null) {
+//	        tasks = taskRepository.findByStartDateBefore(endDate);
+//	    } else {
+//	        tasks = taskRepository.findAll();
+//	    }
+//
+//	    List<TaskDto> taskDtos = tasks.stream().map(TaskDto::new).collect(Collectors.toList());
+//
+//	    return ResponseEntity.ok(taskDtos);
+//	}
 
 }
