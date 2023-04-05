@@ -20,6 +20,6 @@ public interface UserTaskService {
 //	public List<UserTask> findByStatusAndStartDateAndEndDate(List<TaskStatus> status, List<Date> startDate,
 //			List<Date> endDate);
 
-	public List<UserTask> findByStatusAndStartDateAndEndDate(List<TaskStatus> status, Date startDate, Date endDate);
+//	public List<UserTask> findByStatusAndStartDateAndEndDate(List<TaskStatus> status, Date startDate, Date endDate);
 
 }
