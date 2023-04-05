@@ -19,9 +19,9 @@ public interface UserTaskRepository extends JpaRepository<UserTask, Integer> {
 	List<UserTask> findByUser(User user);
 
 
-	@Query(value = "select * from userTask e " + "	where e.department_id in :departmentId"
-			+ " and e.branch_id in :branchId" + "	and e.designation_id in :designationId", nativeQuery = true)
-	List<UserTask> findByStatusAndStartDateAndEndDate(List<TaskStatus> status, Date startDate, Date endDate);
-	
+//	@Query(value = "select * from userTask e " + "	where e.department_id in :departmentId"
+//			+ " and e.branch_id in :branchId" + "	and e.designation_id in :designationId", nativeQuery = true)
+//	List<UserTask> findByStatusAndStartDateAndEndDate(List<TaskStatus> status, Date startDate, Date endDate);
+//	
 	
 }

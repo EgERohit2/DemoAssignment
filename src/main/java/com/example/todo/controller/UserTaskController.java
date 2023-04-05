@@ -152,18 +152,18 @@ public class UserTaskController {
 //		}
 //	}
 	//05-04-2023(not working)
-	@GetMapping("/filter")
-	public ResponseEntity<?> getTaskByFilter(@RequestParam(value = "status", required = true) List<TaskStatus> status,
-	        @RequestParam(value = "startDate", required = true) Date startDate,
-	        @RequestParam(value = "endDate", required = true)  Date endDate) {
-
-	    List<UserTask> userTasks = userTaskService.findByStatusAndStartDateAndEndDate(status, startDate, endDate);
-
-	    if (!userTasks.isEmpty()) {
-	        return new ResponseEntity<>(new SuccessResponseDto("success", "success", userTasks), HttpStatus.OK);
-	    } else {
-	        return new ResponseEntity<>(new ErrorResponseDto("dataNotFound", "Data Not Found", null),
-	                HttpStatus.NOT_FOUND);
-	    }
-	}
+//	@GetMapping("/filter")
+//	public ResponseEntity<?> getTaskByFilter(@RequestParam(value = "status", required = false) List<TaskStatus> status,
+//	        @RequestParam(value = "startDate", required = false) Date startDate,
+//	        @RequestParam(value = "endDate", required = false)  Date endDate) {
+//
+//	    List<UserTask> userTasks = userTaskService.findByStatusAndStartDateAndEndDate(status, startDate, endDate);
+//
+//	    if (!userTasks.isEmpty()) {
+//	        return new ResponseEntity<>(new SuccessResponseDto("success", "success", userTasks), HttpStatus.OK);
+//	    } else {
+//	        return new ResponseEntity<>(new ErrorResponseDto("dataNotFound", "Data Not Found", null),
+//	                HttpStatus.NOT_FOUND); 
+//	    }
+//	}
 }

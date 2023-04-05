@@ -74,10 +74,10 @@ public class UserTaskServiceImplementation implements UserTaskService {
 		}
 	}
 
-	@Override
-	public List<UserTask> findByStatusAndStartDateAndEndDate(List<TaskStatus> status, Date startDate, Date endDate) {
-		// TODO Auto-generated method stub
-		return userTaskRepository.findByStatusAndStartDateAndEndDate(status,startDate,endDate);
-	}
+//	@Override
+//	public List<UserTask> findByStatusAndStartDateAndEndDate(List<TaskStatus> status, Date startDate, Date endDate) {
+//		// TODO Auto-generated method stub
+//		return userTaskRepository.findByStatusAndStartDateAndEndDate(status,startDate,endDate);
+//	}
 
 }
