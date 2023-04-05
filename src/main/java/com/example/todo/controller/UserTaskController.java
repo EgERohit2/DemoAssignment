@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.example.todo.dto.ErrorResponseDto;
 import com.example.todo.dto.SuccessResponseDto;
+import com.example.todo.dto.UserTaskDto;
 import com.example.todo.entities.TaskStatus;
 import com.example.todo.entities.UserTask;
 import com.example.todo.entities.UserTaskHistory;
@@ -152,18 +153,36 @@ public class UserTaskController {
 //		}
 //	}
 	//05-04-2023(not working)
-//	@GetMapping("/filter")
-//	public ResponseEntity<?> getTaskByFilter(@RequestParam(value = "status", required = false) List<TaskStatus> status,
-//	        @RequestParam(value = "startDate", required = false) Date startDate,
-//	        @RequestParam(value = "endDate", required = false)  Date endDate) {
-//
-//	    List<UserTask> userTasks = userTaskService.findByStatusAndStartDateAndEndDate(status, startDate, endDate);
-//
-//	    if (!userTasks.isEmpty()) {
-//	        return new ResponseEntity<>(new SuccessResponseDto("success", "success", userTasks), HttpStatus.OK);
-//	    } else {
-//	        return new ResponseEntity<>(new ErrorResponseDto("dataNotFound", "Data Not Found", null),
-//	                HttpStatus.NOT_FOUND); 
-//	    }
+	@GetMapping("/filter")
+	public ResponseEntity<?> getTaskByFilter(@RequestParam(value = "status", required = false) List<TaskStatus> status,
+	        @RequestParam(value = "startDate", required = false) List<Date> startDate,
+	        @RequestParam(value = "endDate", required = false)  List<Date> endDate) {
+
+	    List<UserTask> userTasks = userTaskService.findByStatusAndStartDateAndEndDate(status, startDate, endDate);
+
+	    if (!userTasks.isEmpty()) {
+	        return new ResponseEntity<>(new SuccessResponseDto("success", "success", userTasks), HttpStatus.OK);
+	    } else {
+	        return new ResponseEntity<>(new ErrorResponseDto("dataNotFound", "Data Not Found", null),
+	                HttpStatus.NOT_FOUND); 
+	    }
+	}
+	
+	@GetMapping("/userTask/data")
+	public List<UserTaskDto> getAllUserTask() {
+		return this.userTaskService.getAllUserTaskDto();
+		 
+	}
+	//05-04-2023(Working)
+//	@GetMapping("/search")
+//	public List<UserTask> getllSearch(@RequestParam (value="search",required = false)String search){
+//		return userTaskRepository.findBySearch(search);
+//		
 //	}
+	
+	@GetMapping("/search/dto")
+	public List<UserTaskDto> getllSearchDto(@RequestParam (value="search",required = false)String search){
+		return userTaskRepository.findBySearch(search);
+		
+	}
 }
