@@ -4,6 +4,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
+import com.example.todo.dto.UserTaskDto;
 import com.example.todo.entities.TaskStatus;
 import com.example.todo.entities.UserTask;
 
@@ -20,6 +21,13 @@ public interface UserTaskService {
 //	public List<UserTask> findByStatusAndStartDateAndEndDate(List<TaskStatus> status, List<Date> startDate,
 //			List<Date> endDate);
 
-//	public List<UserTask> findByStatusAndStartDateAndEndDate(List<TaskStatus> status, Date startDate, Date endDate);
+	//public List<UserTask> findByStatusAndStartDateAndEndDate(List<TaskStatus> status, Date startDate, Date endDate);
+
+	List<UserTask> findByStatusAndStartDateAndEndDate(List<TaskStatus> status, List<Date> startDate, List<Date> endDate);
+
+	public List<UserTaskDto> getAllUserTaskDto();
+
+	//05-04-2023
+	public List<UserTaskDto> findBySearch(String search);
 
 }

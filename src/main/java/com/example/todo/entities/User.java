@@ -21,6 +21,8 @@ import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.hibernate.annotations.Where;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -49,7 +51,7 @@ public class User {
 	private Date createdAt;
 	@UpdateTimestamp
 	private Date updatedAt;
-//	@JsonIgnore
+	@JsonIgnore
 	@OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
 	private List<UserTask> usertask;
 	@ManyToMany(cascade = CascadeType.MERGE, fetch = FetchType.EAGER)

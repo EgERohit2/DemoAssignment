@@ -1,5 +1,6 @@
 package com.example.todo.services.impl;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -7,6 +8,7 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.example.todo.dto.UserTaskDto;
 import com.example.todo.entities.TaskStatus;
 import com.example.todo.entities.UserTask;
 import com.example.todo.entities.UserTaskHistory;
@@ -74,10 +76,46 @@ public class UserTaskServiceImplementation implements UserTaskService {
 		}
 	}
 
-//	@Override
-//	public List<UserTask> findByStatusAndStartDateAndEndDate(List<TaskStatus> status, Date startDate, Date endDate) {
-//		// TODO Auto-generated method stub
-//		return userTaskRepository.findByStatusAndStartDateAndEndDate(status,startDate,endDate);
-//	}
+	@Override
+	public List<UserTask> findByStatusAndStartDateAndEndDate(List<TaskStatus> status, List<Date> startDate,
+			List<Date> endDate) {
+		// TODO Auto-generated method stub
+		return userTaskRepository.findByStatusAndStartDateAndEndDate(status, startDate, endDate);
+	}
 
+	@Override
+	public List<UserTaskDto> getAllUserTaskDto() {
+		// TODO Auto-generated method stub
+		List<UserTask> ut = userTaskRepository.findAll();
+		List<UserTaskDto> udto = new ArrayList<>();
+		for (int i = 0; i < ut.size(); i++) {
+			UserTaskDto userTaskDto = new UserTaskDto();
+			userTaskDto.setStatus(ut.get(i).getStatus());
+			userTaskDto.setStartDate(ut.get(i).getStartDate());
+			userTaskDto.setEndDate(ut.get(i).getEndDate());
+//			userTaskDto.setTask(ut.get(i).getTask());
+//			userTaskDto.setUser(ut.get(i).getUser());
+			udto.add(userTaskDto);
+		}
+		return udto;
+	}
+
+	//05-04-2023
+	@Override
+	public List<UserTaskDto> findBySearch(String search) {
+		// TODO Auto-generated method stub
+		List<UserTask> ut = userTaskRepository.findAll();
+		List<UserTaskDto> udto = new ArrayList<>();
+		for (int i = 0; i < ut.size(); i++) {
+			UserTaskDto userTaskDto = new UserTaskDto();
+			userTaskDto.setStatus(ut.get(i).getStatus());
+			userTaskDto.setStartDate(ut.get(i).getStartDate());
+			userTaskDto.setEndDate(ut.get(i).getEndDate());
+			userTaskDto.setTask(ut.get(i).getTask());
+			userTaskDto.setUser(ut.get(i).getUser());
+			udto.add(userTaskDto);
+
+		}
+		return udto;
+	}
 }
