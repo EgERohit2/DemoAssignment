@@ -1,8 +1,10 @@
 package com.example.todo.controller;
 
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -152,37 +154,73 @@ public class UserTaskController {
 //					HttpStatus.NOT_FOUND);
 //		}
 //	}
-	//05-04-2023(not working)
+	// 05-04-2023(not working)
 	@GetMapping("/filter")
 	public ResponseEntity<?> getTaskByFilter(@RequestParam(value = "status", required = false) List<TaskStatus> status,
-	        @RequestParam(value = "startDate", required = false) List<Date> startDate,
-	        @RequestParam(value = "endDate", required = false)  List<Date> endDate) {
+			@RequestParam(value = "startDate", required = false) List<Date> startDate,
+			@RequestParam(value = "endDate", required = false) List<Date> endDate) {
 
-	    List<UserTask> userTasks = userTaskService.findByStatusAndStartDateAndEndDate(status, startDate, endDate);
+		List<UserTask> userTasks = userTaskService.findByStatusAndStartDateAndEndDate(status, startDate, endDate);
 
-	    if (!userTasks.isEmpty()) {
-	        return new ResponseEntity<>(new SuccessResponseDto("success", "success", userTasks), HttpStatus.OK);
-	    } else {
-	        return new ResponseEntity<>(new ErrorResponseDto("dataNotFound", "Data Not Found", null),
-	                HttpStatus.NOT_FOUND); 
-	    }
+		if (!userTasks.isEmpty()) {
+			return new ResponseEntity<>(new SuccessResponseDto("success", "success", userTasks), HttpStatus.OK);
+		} else {
+			return new ResponseEntity<>(new ErrorResponseDto("dataNotFound", "Data Not Found", null),
+					HttpStatus.NOT_FOUND);
+		}
 	}
-	
+
 	@GetMapping("/userTask/data")
 	public List<UserTaskDto> getAllUserTask() {
 		return this.userTaskService.getAllUserTaskDto();
-		 
+
 	}
-	//05-04-2023(Working)
-//	@GetMapping("/search")
-//	public List<UserTask> getllSearch(@RequestParam (value="search",required = false)String search){
-//		return userTaskRepository.findBySearch(search);
+
+	// 05-04-2023(Working)
+	@GetMapping("/search")
+	public List<UserTask> getllSearch(@RequestParam(value = "search", required = false) String search) {
+		return userTaskRepository.findBySearch(search);
+
+	}
+
+//	@GetMapping("/search/dto")
+//	public List<UserTaskDto> getllSearchDto(@RequestParam (value="search",required = false)String search){
+//		return userTaskService.findBySearch(search);
+//		//return userTaskRepository.findBySearch(search);
 //		
 //	}
-	
-	@GetMapping("/search/dto")
-	public List<UserTaskDto> getllSearchDto(@RequestParam (value="search",required = false)String search){
-		return userTaskRepository.findBySearch(search);
-		
+
+	// checking 4.17pm (not working)
+	@GetMapping("/tasks/filter")
+	public List<UserTask> filterTasks(@RequestParam("status") String status,
+			@RequestParam("startDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+			@RequestParam("endDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {
+		return userTaskService.filterUserTasks(status, startDate, endDate);
 	}
+
+	// 05-04-2023(Working properly- based on status, Not for startDate,endDate)
+	@GetMapping("/tasks/search")
+	public List<UserTaskDto> getAllFilter(@RequestParam(required = false) TaskStatus status,
+			@RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date startDate,
+			@RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date endDate) {
+
+		List<UserTaskDto> tasks = userTaskService.getAllUserTaskDto();
+
+		if (status != null) {
+			tasks = tasks.stream().filter(task -> task.getStatus() == status).collect(Collectors.toList());
+		}
+
+		if (startDate != null) {
+			tasks = tasks.stream().filter(task -> task.getStartDate().compareTo(startDate) >= 0)
+					.collect(Collectors.toList());
+		}
+
+		if (endDate != null) {
+			tasks = tasks.stream().filter(task -> task.getEndDate().compareTo(endDate) <= 0)
+					.collect(Collectors.toList());
+		}
+
+		return tasks;
+	}
+
 }

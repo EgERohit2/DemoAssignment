@@ -1,5 +1,6 @@
 package com.example.todo.services;
 
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -29,5 +30,8 @@ public interface UserTaskService {
 
 	//05-04-2023
 	public List<UserTaskDto> findBySearch(String search);
+
+	//checking
+	public List<UserTask> filterUserTasks(String status, LocalDate startDate, LocalDate endDate);
 
 }

@@ -1,5 +1,7 @@
 package com.example.todo.services.impl;
 
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -100,7 +102,7 @@ public class UserTaskServiceImplementation implements UserTaskService {
 		return udto;
 	}
 
-	//05-04-2023
+	// 05-04-2023
 	@Override
 	public List<UserTaskDto> findBySearch(String search) {
 		// TODO Auto-generated method stub
@@ -118,4 +120,14 @@ public class UserTaskServiceImplementation implements UserTaskService {
 		}
 		return udto;
 	}
+
+	//checking (not-working)
+	@Override
+	public List<UserTask> filterUserTasks(String status, LocalDate startDate, LocalDate endDate) {
+		// TODO Auto-generated method stub
+		Date start = Date.from(startDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
+		Date end = Date.from(endDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
+		return userTaskRepository.findByStatusAndStartDateGreaterThanEqualAndEndDateLessThanEqual(status, start, end);
+	}
+
 }
