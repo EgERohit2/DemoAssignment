@@ -1,9 +1,11 @@
 package com.example.todo.controller;
 
 import java.util.Date;
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -12,6 +14,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.todo.dto.ErrorResponseDto;
@@ -19,12 +22,16 @@ import com.example.todo.dto.SuccessResponseDto;
 import com.example.todo.entities.TaskStatus;
 import com.example.todo.entities.UserTask;
 import com.example.todo.entities.UserTaskHistory;
+import com.example.todo.repository.UserTaskRepository;
 import com.example.todo.services.UserTaskHistoryService;
 import com.example.todo.services.UserTaskService;
 
 @RestController
 @RequestMapping("/to-do")
 public class UserTaskController {
+
+	@Autowired
+	private UserTaskRepository userTaskRepository;
 
 	@Autowired
 	private UserTaskService userTaskService;
@@ -60,7 +67,7 @@ public class UserTaskController {
 		}
 	}
 
-	//not wokring
+	// not wokring
 //	@PutMapping("/{id}/update-status")
 //	public ResponseEntity<?> updateTaskStatus(@PathVariable("id") int id) {
 //		Optional<UserTask> optionalUserTask = userTaskService.getUserTaskById(id);
@@ -117,4 +124,46 @@ public class UserTaskController {
 		}
 	}
 
+//	@GetMapping("/filter")
+//	public ResponseEntity<?> getTaskByFilter(@RequestParam(value = "status", required = true) List<TaskStatus> status,
+//			@RequestParam(value = "startDate", required = true) List<Date> startDate,
+//			@RequestParam(value = "endDate", required = true) List<Date> endDate) {
+//
+//		List<UserTask> database = userTaskRepository.findAll();
+//		if (database.isEmpty()) {
+//			try {
+//				List<UserTask> userTask = userTaskService.findByStatusAndStartDateAndEndDate(status, startDate,
+//						endDate);
+//
+//				if (userTask != null && !userTask.isEmpty()) {
+//					return new ResponseEntity<>(new SuccessResponseDto("success", "success", database), HttpStatus.OK);
+//				} else {
+//					return new ResponseEntity<>(new ErrorResponseDto("dataNotFound", "Data Not Found", null),
+//							HttpStatus.NOT_FOUND);
+//				}
+//			} catch (Exception e) {
+//
+//				return new ResponseEntity<>(new ErrorResponseDto("Something Went Wrong", e.getMessage(), null),
+//						HttpStatus.NOT_ACCEPTABLE);
+//			}
+//		} else {
+//			return new ResponseEntity<>(new ErrorResponseDto("dataNotFound", "Data Not Found", null),
+//					HttpStatus.NOT_FOUND);
+//		}
+//	}
+	//05-04-2023(not working)
+	@GetMapping("/filter")
+	public ResponseEntity<?> getTaskByFilter(@RequestParam(value = "status", required = true) List<TaskStatus> status,
+	        @RequestParam(value = "startDate", required = true) Date startDate,
+	        @RequestParam(value = "endDate", required = true)  Date endDate) {
+
+	    List<UserTask> userTasks = userTaskService.findByStatusAndStartDateAndEndDate(status, startDate, endDate);
+
+	    if (!userTasks.isEmpty()) {
+	        return new ResponseEntity<>(new SuccessResponseDto("success", "success", userTasks), HttpStatus.OK);
+	    } else {
+	        return new ResponseEntity<>(new ErrorResponseDto("dataNotFound", "Data Not Found", null),
+	                HttpStatus.NOT_FOUND);
+	    }
+	}
 }

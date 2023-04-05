@@ -1,12 +1,9 @@
 package com.example.todo.controller;
 
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -25,7 +22,6 @@ import com.example.todo.dto.SuccessResponseDto;
 import com.example.todo.dto.TaskDto;
 import com.example.todo.dto.TasksDto;
 import com.example.todo.entities.Task;
-import com.example.todo.entities.TaskStatus;
 import com.example.todo.entities.User;
 import com.example.todo.entities.UserTask;
 import com.example.todo.repository.TaskRepository;

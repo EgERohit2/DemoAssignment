@@ -1,11 +1,13 @@
 package com.example.todo.services.impl;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.example.todo.entities.TaskStatus;
 import com.example.todo.entities.UserTask;
 import com.example.todo.entities.UserTaskHistory;
 import com.example.todo.repository.UserTaskHistoryRepository;
@@ -70,6 +72,12 @@ public class UserTaskServiceImplementation implements UserTaskService {
 		} else {
 			return null;
 		}
+	}
+
+	@Override
+	public List<UserTask> findByStatusAndStartDateAndEndDate(List<TaskStatus> status, Date startDate, Date endDate) {
+		// TODO Auto-generated method stub
+		return userTaskRepository.findByStatusAndStartDateAndEndDate(status,startDate,endDate);
 	}
 
 }
