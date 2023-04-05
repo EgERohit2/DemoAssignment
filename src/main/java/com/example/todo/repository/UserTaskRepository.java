@@ -32,12 +32,15 @@ public interface UserTaskRepository extends JpaRepository<UserTask, Integer> {
 			@Param("startDate") List<Date> startDate, @Param("endDate") List<Date> endDate);
 	
 	//05-04-2023(WORKING)
-//	@Query(value = "SELECT * FROM user_task e " + "WHERE e.status LIKE %:search% " + "OR e.start_date LIKE %:search% "
-//			+ "OR e.end_date LIKE %:search% ", nativeQuery = true)
-//	List<UserTask> findBySearch(@Param("search") String search);
-	
 	@Query(value = "SELECT * FROM user_task e " + "WHERE e.status LIKE %:search% " + "OR e.start_date LIKE %:search% "
 			+ "OR e.end_date LIKE %:search% ", nativeQuery = true)
-	List<UserTaskDto> findBySearch(@Param("search") String search);
+	List<UserTask> findBySearch(@Param("search") String search);
+	
+//	@Query(value = "SELECT * FROM user_task e " + "WHERE e.status LIKE %:search% " + "OR e.start_date LIKE %:search% "
+//			+ "OR e.end_date LIKE %:search% ", nativeQuery = true)
+//	List<UserTaskDto> findBySearch(@Param("search") String search);
+
+	//05-04-2023(not working)
+	List<UserTask> findByStatusAndStartDateGreaterThanEqualAndEndDateLessThanEqual(String status, Date start, Date end);
 
 }
