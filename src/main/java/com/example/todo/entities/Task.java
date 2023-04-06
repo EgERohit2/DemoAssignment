@@ -48,7 +48,7 @@ public class Task {
 	@UpdateTimestamp
 	private Date updatedAt;
 	
-	@JsonIgnore
+	//@JsonIgnore
 	@OneToMany(mappedBy = "task", cascade = CascadeType.ALL)
 	private List<UserTask> usertask;
 

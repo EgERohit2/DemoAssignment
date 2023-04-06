@@ -33,6 +33,7 @@ public class UserTask {
 	private User user;
 	
 	@ManyToOne
+	//@JoinColumn(name="task_id")
 	private Task task;
 	
 	@Enumerated(EnumType.STRING)
