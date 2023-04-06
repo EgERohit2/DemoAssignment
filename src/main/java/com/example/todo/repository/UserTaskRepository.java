@@ -36,6 +36,16 @@ public interface UserTaskRepository extends JpaRepository<UserTask, Integer> {
 			+ "OR e.end_date LIKE %:search% ", nativeQuery = true)
 	List<UserTask> findBySearch(@Param("search") String search);
 	
+	//06-04-2023(checking)
+	@Query(value = "SELECT u.user_name, u.email, u.mobile_number,"
+			+ "t.task_name,t.description, t.created_at,"
+			+ "ut.status , ut.start_date,ut.end_date "
+			+ "FROM demoassignmentsecurity.user_task ut "
+			+ "JOIN demoassignmentsecurity.task t ON ut.task_id = t.task_id "
+			+ "JOIN demoassignmentsecurity.user u ON ut.user_id = u.user_id",nativeQuery = true)
+	List<UserTask> findAllUserTask();
+
+	
 //	@Query(value = "SELECT * FROM user_task e " + "WHERE e.status LIKE %:search% " + "OR e.start_date LIKE %:search% "
 //			+ "OR e.end_date LIKE %:search% ", nativeQuery = true)
 //	List<UserTaskDto> findBySearch(@Param("search") String search);

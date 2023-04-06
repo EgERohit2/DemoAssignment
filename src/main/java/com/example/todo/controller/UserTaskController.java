@@ -222,5 +222,11 @@ public class UserTaskController {
 
 		return tasks;
 	}
+	
+	@GetMapping("/ut/userTask")
+	public List<UserTask> getAll() {
+		return userTaskService.getAllUserTask();
+		
+	}
 
 }

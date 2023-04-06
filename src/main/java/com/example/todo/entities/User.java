@@ -51,7 +51,7 @@ public class User {
 	private Date createdAt;
 	@UpdateTimestamp
 	private Date updatedAt;
-	@JsonIgnore
+//	@JsonIgnore
 	@OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
 	private List<UserTask> usertask;
 	@ManyToMany(cascade = CascadeType.MERGE, fetch = FetchType.EAGER)

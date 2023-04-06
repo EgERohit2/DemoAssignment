@@ -84,6 +84,11 @@ public class UserTaskServiceImplementation implements UserTaskService {
 		// TODO Auto-generated method stub
 		return userTaskRepository.findByStatusAndStartDateAndEndDate(status, startDate, endDate);
 	}
+	
+	@Override
+	public List<UserTask> getAllUserTask(){
+		return userTaskRepository.findAllUserTask();
+	}
 
 	@Override
 	public List<UserTaskDto> getAllUserTaskDto() {
