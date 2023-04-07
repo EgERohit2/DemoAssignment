@@ -107,6 +107,14 @@ public class TaskServiceImplementation implements TaskService {
 		return taskRepository.findById(id);
 	}
 
+	//07-04-2023(working)
+	@Override
+	public void deleteById(int id) {
+		// TODO Auto-generated method stub
+		taskRepository.deleteById(id);
+		
+	}
+
 //	@Override
 //	 Page<TasksDto> getAllwithDto(Integer pageNumber, Integer pageSize, String search) {
 //		Pageable paging = PageRequest.of((pageNumber) - 1, (pageSize));

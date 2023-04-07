@@ -11,7 +11,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.example.todo.dto.UserTaskDto;
+import com.example.todo.entities.Task;
 import com.example.todo.entities.TaskStatus;
+import com.example.todo.entities.User;
 import com.example.todo.entities.UserTask;
 import com.example.todo.entities.UserTaskHistory;
 import com.example.todo.repository.UserTaskHistoryRepository;
@@ -86,10 +88,11 @@ public class UserTaskServiceImplementation implements UserTaskService {
 	}
 	
 	@Override
-	public List<UserTask> getAllUserTask(){
+	public List<Object[]> getAllUserTask(){
 		return userTaskRepository.findAllUserTask();
 	}
 
+	//07-04-2023(working)
 	@Override
 	public List<UserTaskDto> getAllUserTaskDto() {
 		// TODO Auto-generated method stub
@@ -102,29 +105,40 @@ public class UserTaskServiceImplementation implements UserTaskService {
 			userTaskDto.setEndDate(ut.get(i).getEndDate());
 //			userTaskDto.setTask(ut.get(i).getTask());
 //			userTaskDto.setUser(ut.get(i).getUser());
+			
+			Task ut1 = new Task();
+			ut1.setName(ut.get(i).getTask().getName());
+			
+			userTaskDto.setTask(ut1.getName());
+			
+			User ut2 = new User();
+			ut2.setUsername(ut.get(i).getUser().getUsername());
+			
+			userTaskDto.setUser(ut2.getUsername());
+			
 			udto.add(userTaskDto);
 		}
 		return udto;
 	}
 
 	// 05-04-2023
-	@Override
-	public List<UserTaskDto> findBySearch(String search) {
-		// TODO Auto-generated method stub
-		List<UserTask> ut = userTaskRepository.findAll();
-		List<UserTaskDto> udto = new ArrayList<>();
-		for (int i = 0; i < ut.size(); i++) {
-			UserTaskDto userTaskDto = new UserTaskDto();
-			userTaskDto.setStatus(ut.get(i).getStatus());
-			userTaskDto.setStartDate(ut.get(i).getStartDate());
-			userTaskDto.setEndDate(ut.get(i).getEndDate());
-			userTaskDto.setTask(ut.get(i).getTask());
-			userTaskDto.setUser(ut.get(i).getUser());
-			udto.add(userTaskDto);
-
-		}
-		return udto;
-	}
+//	@Override
+//	public List<UserTaskDto> findBySearch(String search) {
+//		// TODO Auto-generated method stub
+//		List<UserTask> ut = userTaskRepository.findAll();
+//		List<UserTaskDto> udto = new ArrayList<>();
+//		for (int i = 0; i < ut.size(); i++) {
+//			UserTaskDto userTaskDto = new UserTaskDto();
+//			userTaskDto.setStatus(ut.get(i).getStatus());
+//			userTaskDto.setStartDate(ut.get(i).getStartDate());
+//			userTaskDto.setEndDate(ut.get(i).getEndDate());
+//			userTaskDto.setTask(ut.get(i).getTask());
+//			userTaskDto.setUser(ut.get(i).getUser());
+//			udto.add(userTaskDto);
+//
+//		}
+//		return udto;
+//	}
 
 	//checking (not-working)
 	@Override
@@ -134,5 +148,11 @@ public class UserTaskServiceImplementation implements UserTaskService {
 		Date end = Date.from(endDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
 		return userTaskRepository.findByStatusAndStartDateGreaterThanEqualAndEndDateLessThanEqual(status, start, end);
 	}
+
+//	@Override
+//	public List<Object[]> getAllUserTaskFilter() {
+//		// TODO Auto-generated method stub
+//		return userTaskRepository.findAllUserTaskFilt();
+//	}
 
 }
