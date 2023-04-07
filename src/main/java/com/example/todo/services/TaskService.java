@@ -24,4 +24,7 @@ public interface TaskService {
 	List<TasksDto> getAllwithDto(String search, Integer pageSize, Integer pageNumber);
 
 	public Optional<Task> getTaskById(int id);
+	
+	//07-04-2023(checking)
+	public void deleteById(int id);
 }

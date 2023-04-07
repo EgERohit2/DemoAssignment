@@ -60,6 +60,8 @@ public class UserTaskController {
 
 	}
 
+	//07-04-2023(WORKING-user can update his task status)
+	//3.Users can update the status of the tasks - TO_DO, IN_PROGRESS and DONE
 	@PutMapping("/{id}")
 	public ResponseEntity<UserTask> updateUserTask(@PathVariable("id") int id, @RequestBody UserTask userTask) {
 		UserTask updatedUserTask = userTaskService.updateUserTask(id, userTask);
@@ -99,6 +101,7 @@ public class UserTaskController {
 //	}
 
 	// 03-04-2023
+	//(if the task date is overdue then it will update the status as overdue.inprogress as per date)
 	@PutMapping("/{id}/update-status")
 	public ResponseEntity<?> updateTaskStatus(@PathVariable("id") int id) {
 		Optional<UserTask> optionalUserTask = userTaskService.getUserTaskById(id);
@@ -199,34 +202,68 @@ public class UserTaskController {
 	}
 
 	// 05-04-2023(Working properly- based on status, Not for startDate,endDate)
+	//07-04-2023(working perfectly)
+//10.Users should be able to filter the tasks based on the status of the task, start date and end date.
 	@GetMapping("/tasks/search")
-	public List<UserTaskDto> getAllFilter(@RequestParam(required = false) TaskStatus status,
-			@RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date startDate,
-			@RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date endDate) {
+	public List<UserTaskDto> getAllFilter(@RequestParam(value = "status",required = false) TaskStatus status,
+	        @RequestParam(value = "startDate",required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date startDate,
+	        @RequestParam(value = "endDate",required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date endDate) {
 
-		List<UserTaskDto> tasks = userTaskService.getAllUserTaskDto();
+	    List<UserTaskDto> tasks = userTaskService.getAllUserTaskDto();
+//		List<Object[]> tasks = userTaskService.getAllUserTask();
 
-		if (status != null) {
-			tasks = tasks.stream().filter(task -> task.getStatus() == status).collect(Collectors.toList());
-		}
+	    if (status != null) {
+	        tasks = tasks.stream().filter(task -> task.getStatus() == status).collect(Collectors.toList());
+	    }
 
-		if (startDate != null) {
-			tasks = tasks.stream().filter(task -> task.getStartDate().compareTo(startDate) >= 0)
-					.collect(Collectors.toList());
-		}
+	    if (startDate != null && endDate != null) {
+	        tasks = tasks.stream().filter(task ->
+	                (task.getStartDate().compareTo(startDate) >= 0) && (task.getEndDate().compareTo(endDate) <= 0))
+	                .collect(Collectors.toList());
+	    } else if (startDate != null) {
+	        tasks = tasks.stream().filter(task -> task.getStartDate().compareTo(startDate) >= 0)
+	                .collect(Collectors.toList());
+	    } else if (endDate != null) {
+	        tasks = tasks.stream().filter(task -> task.getEndDate().compareTo(endDate) <= 0)
+	                .collect(Collectors.toList());
+	    }
 
-		if (endDate != null) {
-			tasks = tasks.stream().filter(task -> task.getEndDate().compareTo(endDate) <= 0)
-					.collect(Collectors.toList());
-		}
-
-		return tasks;
+	    return tasks;
 	}
 	
+	//07-04-2023(working)
 	@GetMapping("/ut/userTask")
-	public List<UserTask> getAll() {
+	public List<Object[]> getAll() {
 		return userTaskService.getAllUserTask();
 		
 	}
-
+	
+	@GetMapping("/overdue")
+    public List<UserTaskDto> getAllTasks(@RequestParam(required = false) TaskStatus status,
+                                         @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date startDate,
+                                         @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date endDate) {
+        List<UserTaskDto> taskDtos = userTaskService.getAllUserTaskDto();
+        
+        // Filter tasks by status, start date, and end date
+        if (status != null) {
+            taskDtos = taskDtos.stream().filter(task -> task.getStatus() == status).collect(Collectors.toList());
+        }
+        if (startDate != null) {
+            taskDtos = taskDtos.stream().filter(task -> task.getStartDate().compareTo(startDate) >= 0).collect(Collectors.toList());
+        }
+        if (endDate != null) {
+            taskDtos = taskDtos.stream().filter(task -> task.getEndDate().compareTo(endDate) <= 0).collect(Collectors.toList());
+        }
+        
+        // Filter tasks that are overdue
+        taskDtos = taskDtos.stream()
+                .filter(task -> task.getStatus() == TaskStatus.INPROGRESS && task.getEndDate().compareTo(new Date()) < 0)
+                .collect(Collectors.toList());
+        
+        return taskDtos;
+    }
+    
 }
+	
+	
+

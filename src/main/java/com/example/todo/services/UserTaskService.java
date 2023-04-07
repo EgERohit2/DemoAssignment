@@ -29,11 +29,14 @@ public interface UserTaskService {
 	public List<UserTaskDto> getAllUserTaskDto();
 
 	//05-04-2023
-	public List<UserTaskDto> findBySearch(String search);
+//	public List<UserTaskDto> findBySearch(String search);
 
 	//checking
 	public List<UserTask> filterUserTasks(String status, LocalDate startDate, LocalDate endDate);
 
-	List<UserTask> getAllUserTask();
+	List<Object[]> getAllUserTask();
+	
+	//07-04-2023
+//	List<Object[]> getAllUserTaskFilter();
 
 }

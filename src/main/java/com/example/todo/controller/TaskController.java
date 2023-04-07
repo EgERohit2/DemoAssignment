@@ -7,7 +7,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -41,7 +43,7 @@ public class TaskController {
 
 	@Autowired
 	private UserRepository userRepository;
-	
+
 	@Autowired
 	private TaskRepository taskRepository;
 
@@ -56,13 +58,12 @@ public class TaskController {
 		}
 	}
 
-	
 	@GetMapping("task")
 	public List<Task> getAllData() {
 		return taskService.getAllTasks();
 	}
 
-	//Admin can see all the list of tasks.
+	// Admin can see all the list of tasks.
 	@PreAuthorize("hasRole('ROLE_admin')")
 	@GetMapping("taskDto/getAllDto")
 	public List<TaskDto> getAllTaskDto() {
@@ -96,7 +97,10 @@ public class TaskController {
 		return new ResponseEntity<>(cvs, HttpStatus.OK);
 	}
 
-	// 04-04-2023
+	// 04-04-2023(working)
+	// 4.When a user fetches the list of tasks he/she should be able to see only
+	// those
+	// tasks that are assigned to him/her. Admin can see all the list of tasks
 	@GetMapping("/tasks")
 	public ResponseEntity<?> getAllTasksForUser(@RequestHeader("Authorization") String token) {
 		String username = JwtUtil.parseToken(token.replace("Bearer ", ""));
@@ -114,36 +118,20 @@ public class TaskController {
 
 		return ResponseEntity.ok(taskDtos);
 	}
-	
-	//04-04-2023 4.01pm (not working)
-//	@GetMapping("/tasks")
-//	public ResponseEntity<List<TaskDto>> getTasksByStatusAndDate(
-//	        @RequestParam(value = "status", required = false) TaskStatus status,
-//	        @RequestParam(value = "startDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
-//	        @RequestParam(value = "endDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {
-//
-//	    List<Task> tasks;
-//	    if (status != null && startDate != null && endDate != null) {
-//	        tasks = taskRepository.findByStatusAndStartDateBetween(status, startDate, endDate);
-//	    } else if (status != null && startDate != null) {
-//	        tasks = taskRepository.findByStatusAndStartDateAfter(status, startDate);
-//	    } else if (status != null && endDate != null) {
-//	        tasks = taskRepository.findByStatusAndStartDateAfter(status, endDate);
-//	    } else if (startDate != null && endDate != null) {
-//	        tasks = taskRepository.findByStartDateBetween(startDate, endDate);
-//	    } else if (status != null) {
-//	        tasks = taskRepository.findByStatus(status);
-//	    } else if (startDate != null) {
-//	        tasks = taskRepository.findByStartDateAfter(startDate);
-//	    } else if (endDate != null) {
-//	        tasks = taskRepository.findByStartDateBefore(endDate);
-//	    } else {
-//	        tasks = taskRepository.findAll();
-//	    }
-//
-//	    List<TaskDto> taskDtos = tasks.stream().map(TaskDto::new).collect(Collectors.toList());
-//
-//	    return ResponseEntity.ok(taskDtos);
-//	}
 
+	// 07-04-2023(working)
+	// Users do not have the permission to delete a task. Only Admin can delete a
+	// task.
+	@PreAuthorize("hasRole('ROLE_admin')")
+	@DeleteMapping("task/delete/{id}")
+	public ResponseEntity<?> deleteTask(@PathVariable int id) {
+		try {
+			taskRepository.deleteById(id);
+			return new ResponseEntity<>(new SuccessResponseDto("success", "deleted", null), HttpStatus.CREATED);
+		} catch (Exception e) {
+			return new ResponseEntity<>(new ErrorResponseDto("Error ", "No data found", e.getMessage()),
+					HttpStatus.BAD_REQUEST);
+		}
+
+	}
 }
