@@ -22,6 +22,7 @@ import com.example.todo.dto.ErrorResponseDto;
 import com.example.todo.dto.SuccessResponseDto;
 import com.example.todo.dto.TaskDto;
 import com.example.todo.dto.UserDto;
+import com.example.todo.dto.UserTaskDto;
 import com.example.todo.entities.Role;
 import com.example.todo.entities.Task;
 import com.example.todo.entities.User;
@@ -168,7 +169,8 @@ public class UserController {
 	}
 
 	// 07-04-2023(working)
-	// 5.Status of the task can be updated only by the assigned user and admin. Users
+	// 5.Status of the task can be updated only by the assigned user and admin.
+	// Users
 	// cannot update the task status that is not assigned to them
 	@PutMapping("/task/update/auth/{id}")
 	public ResponseEntity<?> updateTaskByIdAuth(@PathVariable("id") int id, @RequestBody Task task,
@@ -185,7 +187,7 @@ public class UserController {
 
 //	 Try to use this in if statement --  user.getRole().contains("admin")||user.getRole().contains("employee")
 			// if the users role is not an admin or an employee then it return unauthorized.
-			if ( user.getRole().contains("admin")||user.getRole().contains("employee")) {
+			if (user.getRole().contains("admin") || user.getRole().contains("employee")) {
 				return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
 			}
 			// Fetch task by ID
@@ -209,4 +211,9 @@ public class UserController {
 
 	}
 
+	//08-04-2023(working)
+	@GetMapping("/userDto/{id}")
+	public UserDto getUserDtoById(@PathVariable int id) {
+		return this.userService.getUserDtoById(id);
+	}
 }

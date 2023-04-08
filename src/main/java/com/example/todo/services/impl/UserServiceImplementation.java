@@ -96,4 +96,24 @@ public class UserServiceImplementation implements UserService {
 		}
 		return userDto;
 	}
+
+	//08-04-2023(working)
+	@Override
+	public UserDto getUserDtoById(int id) {
+		// TODO Auto-generated method stub
+		Optional<User> u = userRepository.findById(id);
+		List<UserDto> userDto = new ArrayList<>();
+		if(u.isPresent()) {
+			User user = u.get();
+			UserDto userDto2 = new UserDto();
+			userDto2.setUsername(user.getUsername());
+			userDto2.setMob(user.getMob());
+			userDto2.setEmail(user.getEmail());
+			return userDto2;
+		}else {
+			return null;
+		}
+		
+		
+	}
 }
