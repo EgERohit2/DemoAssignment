@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import com.example.todo.dto.AdminUserTaskDto;
 import com.example.todo.dto.UserTaskDto;
 import com.example.todo.entities.TaskStatus;
 import com.example.todo.entities.User;
@@ -31,7 +32,7 @@ public interface UserTaskRepository extends JpaRepository<UserTask, Integer> {
 	List<UserTask> findByStatusAndStartDateAndEndDate(@Param("status") List<TaskStatus> status,
 			@Param("startDate") List<Date> startDate, @Param("endDate") List<Date> endDate);
 
-	// 05-04-2023(WORKING)
+	// 05-04-2023(WORKING)//not working bcz of some changes in userdto
 	@Query(value = "SELECT * FROM user_task e " + "WHERE e.status LIKE %:search% " + "OR e.start_date LIKE %:search% "
 			+ "OR e.end_date LIKE %:search% ", nativeQuery = true)
 	List<UserTask> findBySearch(@Param("search") String search);
@@ -65,4 +66,10 @@ public interface UserTaskRepository extends JpaRepository<UserTask, Integer> {
 	List<Object[]> findAllUserTask(@Param("status") TaskStatus status, 
                             @Param("startDate") Date startDate, 
                             @Param("endDate") Date endDate,  @Param("userId") int userId);
+	
+	@Query(value =  "SELECT t.task_name, t.description,ut.status"
+			+ "			+ \"FROM user_task as ut"
+			+ "			+ \"JOIN task as t ON ut.task_id = t.id "
+			+ "			+ \"where status='OVERDUE'",nativeQuery = true)
+	List<UserTaskDto> findTaskByUserDtoAdmin(@Param("id") int id);
 }

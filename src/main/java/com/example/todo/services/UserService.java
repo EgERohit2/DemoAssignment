@@ -21,5 +21,8 @@ public interface UserService {
 	public void deleteUser(int id);
 
 	public void addRoles(int userId, int roleId);
+	
+	//08-04-2023(checking)
+	public UserDto getUserDtoById(int id);
 
 }
