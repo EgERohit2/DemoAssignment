@@ -1,7 +1,5 @@
 package com.example.todo.services.impl;
 
-import java.time.LocalDate;
-import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -86,13 +84,13 @@ public class UserTaskServiceImplementation implements UserTaskService {
 		// TODO Auto-generated method stub
 		return userTaskRepository.findByStatusAndStartDateAndEndDate(status, startDate, endDate);
 	}
-	
+
 	@Override
-	public List<Object[]> getAllUserTask(){
+	public List<Object[]> getAllUserTask() {
 		return userTaskRepository.findAllUserTask();
 	}
 
-	//07-04-2023(working)
+	// 07-04-2023(working)
 	@Override
 	public List<UserTaskDto> getAllUserTaskDto() {
 		// TODO Auto-generated method stub
@@ -105,17 +103,17 @@ public class UserTaskServiceImplementation implements UserTaskService {
 			userTaskDto.setEndDate(ut.get(i).getEndDate());
 //			userTaskDto.setTask(ut.get(i).getTask());
 //			userTaskDto.setUser(ut.get(i).getUser());
-			
+
 			Task ut1 = new Task();
 			ut1.setName(ut.get(i).getTask().getName());
-			
+
 			userTaskDto.setTask(ut1.getName());
-			
+
 			User ut2 = new User();
 			ut2.setUsername(ut.get(i).getUser().getUsername());
-			
+
 			userTaskDto.setUser(ut2.getUsername());
-			
+
 			udto.add(userTaskDto);
 		}
 		return udto;
@@ -139,15 +137,6 @@ public class UserTaskServiceImplementation implements UserTaskService {
 //		}
 //		return udto;
 //	}
-
-	//checking (not-working)
-	@Override
-	public List<UserTask> filterUserTasks(String status, LocalDate startDate, LocalDate endDate) {
-		// TODO Auto-generated method stub
-		Date start = Date.from(startDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
-		Date end = Date.from(endDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
-		return userTaskRepository.findByStatusAndStartDateGreaterThanEqualAndEndDateLessThanEqual(status, start, end);
-	}
 
 //	@Override
 //	public List<Object[]> getAllUserTaskFilter() {

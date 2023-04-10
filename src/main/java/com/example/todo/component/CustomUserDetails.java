@@ -32,7 +32,7 @@ public class CustomUserDetails implements UserDetails {
 		for (Role role1 : roles) {
 			authorities.add(new SimpleGrantedAuthority("ROLE_" + role1.getRolename()));
 		}
-		return authorities;	
+		return authorities;
 	}
 
 	@Override
@@ -70,9 +70,5 @@ public class CustomUserDetails implements UserDetails {
 		// TODO Auto-generated method stub
 		return true;
 	}
-	
-
-
-		
 
 }
