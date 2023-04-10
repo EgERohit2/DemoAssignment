@@ -66,10 +66,7 @@ public interface UserTaskRepository extends JpaRepository<UserTask, Integer> {
 	List<Object[]> findAllUserTask(@Param("status") TaskStatus status, 
                             @Param("startDate") Date startDate, 
                             @Param("endDate") Date endDate,  @Param("userId") int userId);
-	
-	@Query(value =  "SELECT t.task_name, t.description,ut.status"
-			+ "			+ \"FROM user_task as ut"
-			+ "			+ \"JOIN task as t ON ut.task_id = t.id "
-			+ "			+ \"where status='OVERDUE'",nativeQuery = true)
-	List<UserTaskDto> findTaskByUserDtoAdmin(@Param("id") int id);
+	//10-04-2023 (working)
+	@Query(value =  "SELECT t.task_name, t.description, ut.status FROM user_task AS ut JOIN task AS t ON ut.task_id = t.id JOIN user AS u ON ut.user_id = u.id WHERE ut.status = 'overdue' AND u.id = ?;",nativeQuery = true)
+	List<Object> findTaskByUserDtoAdmin(@Param("id") int id);
 }

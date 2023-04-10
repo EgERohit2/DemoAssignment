@@ -86,6 +86,9 @@ public class UserTaskController {
 	// 03-04-2023
 	// (if the task date is overdue then it will update the status as
 	// overdue.inprogress as per date)
+	//10-04-2023 (it is getting by usertask_id but we'vw to get it by task_id && task should be automatically update his 
+//	task status as current date is overdue by end date)
+
 	@PutMapping("/{id}/update-status")
 	public ResponseEntity<?> updateTaskStatus(@PathVariable("id") int id) {
 		Optional<UserTask> optionalUserTask = userTaskService.getUserTaskById(id);
@@ -269,16 +272,16 @@ public class UserTaskController {
 		User u = userService.getUserById(id).orElseThrow();
 		// Filter tasks by status, start date, and end date
 		if (u != null) {
-			
+
 		}
 
 		return taskDtos;
 	}
 
-	// (not necessary)
+	// 10-04-2023(working) 
 	@GetMapping("/overdue/admin")
-	public List<UserTaskDto> getAllOverdueTasksForUser(@RequestParam(value = "id", required = false)int id) {
+	public List<Object> getAllOverdueTasksForUser(@RequestParam(value = "id", required = false) int id) {
 		return userTaskRepository.findTaskByUserDtoAdmin(id);
-	   
+
 	}
 }
