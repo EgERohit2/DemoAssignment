@@ -1,6 +1,7 @@
 package com.example.todo.controller;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -101,19 +102,46 @@ public class TaskController {
 	// 4.When a user fetches the list of tasks he/she should be able to see only
 	// those
 	// tasks that are assigned to him/her. Admin can see all the list of tasks
+//	@GetMapping("/tasks")
+//	public ResponseEntity<?> getAllTasksForUser(@RequestHeader("Authorization") String token) {
+//		String username = JwtUtil.parseToken(token.replace("Bearer ", ""));
+//
+//		User user = userRepository.findByUsername(username);
+//
+//		List<TaskDto> taskDtos = new ArrayList<>();
+//		List<UserTask> userTasks = userTaskRepository.findByUser(user);
+//
+//		for (UserTask userTask : userTasks) {
+//			Task task = userTask.getTask();
+//			TaskDto taskDto = new TaskDto(task.getName(), task.getDesc());
+//			taskDtos.add(taskDto);
+//		}
+//
+//		return ResponseEntity.ok(taskDtos);
+//	}
+
+	// 10-04-2023(working) 5.45pm
+	// 4.When a user fetches the list of tasks he/she should be able to see only
+	// those
+	// tasks that are assigned to him/her.
+	// 11.Users can create overdue tasks such that they can set the start date of the
+	// tasks in future. These tasks should only be visible only when the start date
+	// has passed.
 	@GetMapping("/tasks")
-	public ResponseEntity<?> getAllTasksForUser(@RequestHeader("Authorization") String token) {
+	public ResponseEntity<List<TaskDto>> getAllTasksAssignedToUser(@RequestHeader("Authorization") String token) {
 		String username = JwtUtil.parseToken(token.replace("Bearer ", ""));
-
 		User user = userRepository.findByUsername(username);
-
 		List<TaskDto> taskDtos = new ArrayList<>();
-		List<UserTask> userTasks = userTaskRepository.findByUser(user);
+		Date currentDate = new Date();
 
+		List<UserTask> userTasks = userTaskRepository.findByUser(user);
 		for (UserTask userTask : userTasks) {
 			Task task = userTask.getTask();
-			TaskDto taskDto = new TaskDto(task.getName(), task.getDesc());
-			taskDtos.add(taskDto);
+			Date taskStartDate = userTask.getStartDate();
+			if (taskStartDate != null && currentDate.after(taskStartDate)) {
+				TaskDto taskDto = new TaskDto(task.getName(), task.getDesc());
+				taskDtos.add(taskDto);
+			}
 		}
 
 		return ResponseEntity.ok(taskDtos);

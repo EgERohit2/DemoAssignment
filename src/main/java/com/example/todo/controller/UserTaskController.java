@@ -1,6 +1,5 @@
 package com.example.todo.controller;
 
-import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -24,12 +23,14 @@ import com.example.todo.component.JwtUtil;
 import com.example.todo.dto.ErrorResponseDto;
 import com.example.todo.dto.SuccessResponseDto;
 import com.example.todo.dto.UserTaskDto;
+import com.example.todo.entities.Task;
 import com.example.todo.entities.TaskStatus;
 import com.example.todo.entities.User;
 import com.example.todo.entities.UserTask;
 import com.example.todo.entities.UserTaskHistory;
 import com.example.todo.repository.UserRepository;
 import com.example.todo.repository.UserTaskRepository;
+import com.example.todo.services.TaskService;
 import com.example.todo.services.UserService;
 import com.example.todo.services.UserTaskHistoryService;
 import com.example.todo.services.UserTaskService;
@@ -43,6 +44,9 @@ public class UserTaskController {
 
 	@Autowired
 	private UserTaskService userTaskService;
+
+	@Autowired
+	private TaskService taskService;
 
 	@Autowired
 	private UserTaskHistoryService userTaskHistoryService;
@@ -83,33 +87,34 @@ public class UserTaskController {
 		}
 	}
 
-	// 03-04-2023
+	// 10-04-2023(working) 6.50 PM
 	// (if the task date is overdue then it will update the status as
 	// overdue.inprogress as per date)
-	//10-04-2023 (it is getting by usertask_id but we'vw to get it by task_id && task should be automatically update his 
-//	task status as current date is overdue by end date)
-
 	@PutMapping("/{id}/update-status")
-	public ResponseEntity<?> updateTaskStatus(@PathVariable("id") int id) {
-		Optional<UserTask> optionalUserTask = userTaskService.getUserTaskById(id);
-		if (optionalUserTask.isPresent()) {
-			UserTask userTask = optionalUserTask.get();
-			if (userTask.getStatus() == TaskStatus.DONE) {
-				return ResponseEntity.badRequest().body("Task has already been completed");
-			}
-			Date currentDate = new Date();
-			if (currentDate.after(userTask.getEndDate())) {
-				userTask.setStatus(TaskStatus.OVERDUE);
-			} else {
-				userTask.setStatus(TaskStatus.INPROGRESS);
-			}
-			userTaskService.saveUserTask(userTask);
+	public ResponseEntity<?> updateTaskStatus(@PathVariable("id") int taskId) {
+		Optional<Task> optionalTask = taskService.getTaskById(taskId);
+		if (optionalTask.isPresent()) {
+			Task task = optionalTask.get();
+			List<UserTask> userTasks = task.getUsertask();
+			for (UserTask userTask : userTasks) {
+				if (userTask.getStatus() == TaskStatus.DONE) {
+					return ResponseEntity.badRequest().body("Task has already been completed by some users");
+				}
+				Date currentDate = new Date();
+				if (currentDate.after(userTask.getEndDate())) {
+					userTask.setStatus(TaskStatus.OVERDUE);
+				}
+//				else {
+//					userTask.setStatus(TaskStatus.INPROGRESS);
+//				}  (this is not necessary)
+				userTaskService.saveUserTask(userTask);
 
-			UserTaskHistory userTaskHistory = new UserTaskHistory();
-			userTaskHistory.setUsertask(userTask);
-			userTaskHistory.setStatus(userTask.getStatus());
-			userTaskHistory.setDate(new Date());
-			userTaskHistoryService.saveUserTaskHistory(userTaskHistory);
+				UserTaskHistory userTaskHistory = new UserTaskHistory();
+				userTaskHistory.setUsertask(userTask);
+				userTaskHistory.setStatus(userTask.getStatus());
+				userTaskHistory.setDate(new Date());
+				userTaskHistoryService.saveUserTaskHistory(userTaskHistory);
+			}
 
 			return ResponseEntity.ok("Task status updated successfully");
 		} else {
@@ -181,12 +186,12 @@ public class UserTaskController {
 //	}
 
 	// checking 4.17pm (not working)
-	@GetMapping("/tasks/filter")
-	public List<UserTask> filterTasks(@RequestParam("status") String status,
-			@RequestParam("startDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
-			@RequestParam("endDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {
-		return userTaskService.filterUserTasks(status, startDate, endDate);
-	}
+//	@GetMapping("/tasks/filter")
+//	public List<UserTask> filterTasks(@RequestParam("status") String status,
+//			@RequestParam("startDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
+//			@RequestParam("endDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate) {
+//		return userTaskService.filterUserTasks(status, startDate, endDate);
+//	}
 
 	// 05-04-2023(Working properly- based on status, Not for startDate,endDate)
 	// 07-04-2023(working perfectly)
@@ -242,7 +247,7 @@ public class UserTaskController {
 	}
 
 	// 08-04-2023(working)
-//	Admin should be able to filter the tasks based on the user.
+//		Admin should be able to filter the tasks based on the user.
 	@GetMapping("/tasks/search/admin")
 	public List<UserTaskDto> getAllFilterAdminOnly(@RequestParam(value = "user", required = false) String user) {
 
@@ -278,10 +283,32 @@ public class UserTaskController {
 		return taskDtos;
 	}
 
-	// 10-04-2023(working) 
+	// 10-04-2023(working)
+	// 10.Users should also have the ability to view overdue tasks. That is the
+	// tasks that are past the completion date
 	@GetMapping("/overdue/admin")
-	public List<Object> getAllOverdueTasksForUser(@RequestParam(value = "id", required = false) int id) {
-		return userTaskRepository.findTaskByUserDtoAdmin(id);
+	public ResponseEntity<Object> getAllOverdueTasksForUser(@RequestParam(value = "id", required = false) int id,
+			@RequestHeader("Authorization") String token) {
+		try {
+			// Extract username from token
+			String username = JwtUtil.parseToken(token.replace("Bearer ", ""));
 
+			// Fetch user by username
+			User user = userRepository.findByUsername(username);
+			System.out.println(user);
+
+			if (user.getId() != id && user.getRole().contains("admin") || user.getRole().contains("employee")) {
+				return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+			} else {
+				List<Object> overdueTasks = userTaskRepository.findTaskByUserDtoAdmin(id);
+				if (overdueTasks != null) {
+					return ResponseEntity.ok(overdueTasks);
+				} else {
+					return ResponseEntity.notFound().build();
+				}
+			}
+		} catch (Exception e) {
+			return ResponseEntity.ok(e.getMessage());
+		}
 	}
 }

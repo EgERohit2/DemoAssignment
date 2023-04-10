@@ -31,8 +31,6 @@ public interface UserTaskService {
 	//05-04-2023
 //	public List<UserTaskDto> findBySearch(String search);
 
-	//checking
-	public List<UserTask> filterUserTasks(String status, LocalDate startDate, LocalDate endDate);
 
 	List<Object[]> getAllUserTask();
 	
