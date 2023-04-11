@@ -8,8 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import com.example.todo.dto.AdminUserTaskDto;
-import com.example.todo.dto.UserTaskDto;
+import com.example.todo.entities.Task;
 import com.example.todo.entities.TaskStatus;
 import com.example.todo.entities.User;
 import com.example.todo.entities.UserTask;
@@ -69,4 +68,10 @@ public interface UserTaskRepository extends JpaRepository<UserTask, Integer> {
 	//10-04-2023 (working)
 	@Query(value =  "SELECT t.task_name, t.description, ut.status FROM user_task AS ut JOIN task AS t ON ut.task_id = t.id JOIN user AS u ON ut.user_id = u.id WHERE ut.status = 'overdue' AND u.id = ?;",nativeQuery = true)
 	List<Object> findTaskByUserDtoAdmin(@Param("id") int id);
+
+	//11-04-2023(checking) 5.05 PM
+	List<UserTask> findByUserId(int id);
+
+//	UserTask findByUserIdAndTaskId(User user, Task task);
+	
 }

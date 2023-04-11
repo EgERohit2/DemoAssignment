@@ -22,14 +22,13 @@ import com.example.todo.dto.ErrorResponseDto;
 import com.example.todo.dto.SuccessResponseDto;
 import com.example.todo.dto.TaskDto;
 import com.example.todo.dto.UserDto;
-import com.example.todo.dto.UserTaskDto;
-import com.example.todo.entities.Role;
 import com.example.todo.entities.Task;
 import com.example.todo.entities.User;
 import com.example.todo.repository.TaskRepository;
 import com.example.todo.repository.UserRepository;
 import com.example.todo.services.TaskService;
 import com.example.todo.services.UserService;
+import com.example.todo.services.UserTaskService;
 
 @RestController
 @RequestMapping("/to-do")
@@ -40,6 +39,9 @@ public class UserController {
 
 	@Autowired
 	private UserRepository userRepository;
+
+	@Autowired
+	private UserTaskService userTaskService;
 
 	@Autowired
 	private TaskRepository taskRepository;
@@ -129,6 +131,10 @@ public class UserController {
 //
 //	}
 
+	// 11-04-2023(checking) 11.00 AM
+	// Id is passing it should be user_id which and as per this that users assigns
+	// task should be upadted(expected)
+	// It is taking task_id of task table (current situation)
 	@PutMapping("/task/update/{id}")
 	public ResponseEntity<?> updateTaskById(@PathVariable("id") int id, @RequestBody TaskDto taskDto,
 			@RequestHeader("Authorization") String token) {
@@ -144,7 +150,7 @@ public class UserController {
 
 //	 Try to use this in if statement --  user.getRole().contains("admin")||user.getRole().contains("employee")
 			// if the users role is not an admin or an employee then it return unauthorized.
-			if (user.getId() != id && user.getRole() != Role.admin && user.getRole() != Role.employee) {
+			if (!user.getRole().contains("admin") || !user.getRole().contains("employee")) {
 				return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
 			}
 			// Fetch task by ID
@@ -172,48 +178,90 @@ public class UserController {
 	// 5.Status of the task can be updated only by the assigned user and admin.
 	// Users
 	// cannot update the task status that is not assigned to them
-	@PutMapping("/task/update/auth/{id}")
-	public ResponseEntity<?> updateTaskByIdAuth(@PathVariable("id") int id, @RequestBody Task task,
-			@RequestHeader("Authorization") String token) {
+//	@PutMapping("/task/update/auth/{id}")
+//	public ResponseEntity<?> updateTaskByIdAuth(@PathVariable("id") int id, @RequestBody Task task,
+//			@RequestHeader("Authorization") String token) {
+//
+//		try {
+//
+//			// Extract username from token
+//			String username = JwtUtil.parseToken(token.replace("Bearer ", ""));
+//
+//			// Fetch user by username
+//			User user = userRepository.findByUsername(username);
+//			System.out.println(user);
+//
+////	 Try to use this in if statement --  user.getRole().contains("admin")||user.getRole().contains("employee")
+//			// if the users role is not an admin or an employee then it return unauthorized.
+//			if (user.getRole().contains("admin") || user.getRole().contains("employee")) {
+//				return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+//			}
+//			// Fetch task by ID
+//			TaskDto optionalTask = taskService.getTaskDtoById(id);
+//			if (optionalTask != null) {
+//				System.out.println(optionalTask);
+//				TaskDto taskDto = new TaskDto();
+//				task.setName(taskDto.getName());
+//				task.setDesc(taskDto.getDesc());
+////	        task.setStatus(taskDto.getStatus());
+//
+//				// Save updated task
+//				taskRepository.save(task);
+//				return ResponseEntity.ok(taskDto);
+//			} else {
+//				return ResponseEntity.notFound().build();
+//			}
+//		} catch (Exception e) {
+//			return ResponseEntity.ok(e.getMessage());
+//		}
+//
+//	}
 
-		try {
+	// 11-04-2023(not working) 11.20 AM
+//	@PutMapping("/task/update")
+//	public ResponseEntity<?> updateTaskByUserTaskId(@RequestBody TaskDto taskDto, @RequestParam("userId") int userId, @RequestHeader("Authorization") String token) {
+//	    try {
+//	        // Extract username from token
+//	        String username = JwtUtil.parseToken(token.replace("Bearer ", ""));
+//	        // Fetch user by username
+//	        User user = userRepository.findByUsername(username);
+//
+//	        // Check if the user role is not admin or employee, return unauthorized
+//	        if (!user.getRole().contains("admin") && !user.getRole().contains("employee")) {
+//	            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+//	        }
+//
+//	        // Fetch UserTask by ID
+//	        Optional<UserTask> optionalUserTask = userTaskService.getUserTaskById(taskDto.getUserTaskId());
+//	        if (optionalUserTask.isPresent()) {
+//	            UserTask userTask = optionalUserTask.get();
+//	            
+//	            // Check if the UserTask belongs to the specified user ID
+//	            if (userTask.getUser().getId() != userId) {
+//	                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+//	            }
+//	            
+//	            Task task = userTask.getTask();
+//	            task.setName(taskDto.getName());
+//	            task.setDesc(taskDto.getDesc());
+//	            // Update the task status if needed
+//	            // task.setStatus(taskDto.getStatus());
+//
+//	            // Save updated task
+//	            taskService.saveTask(task);
+//	            return ResponseEntity.ok(taskDto);
+//	        } else {
+//	            return ResponseEntity.notFound().build();
+//	        }
+//	    } catch (Exception e) {
+//	        return ResponseEntity.ok(e.getMessage());
+//	    }
+//	}
 
-			// Extract username from token
-			String username = JwtUtil.parseToken(token.replace("Bearer ", ""));
-
-			// Fetch user by username
-			User user = userRepository.findByUsername(username);
-			System.out.println(user);
-
-//	 Try to use this in if statement --  user.getRole().contains("admin")||user.getRole().contains("employee")
-			// if the users role is not an admin or an employee then it return unauthorized.
-			if (user.getRole().contains("admin") || user.getRole().contains("employee")) {
-				return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-			}
-			// Fetch task by ID
-			TaskDto optionalTask = taskService.getTaskDtoById(id);
-			if (optionalTask != null) {
-				System.out.println(optionalTask);
-				TaskDto taskDto = new TaskDto();
-				task.setName(taskDto.getName());
-				task.setDesc(taskDto.getDesc());
-//	        task.setStatus(taskDto.getStatus());
-
-				// Save updated task
-				taskRepository.save(task);
-				return ResponseEntity.ok(taskDto);
-			} else {
-				return ResponseEntity.notFound().build();
-			}
-		} catch (Exception e) {
-			return ResponseEntity.ok(e.getMessage());
-		}
-
-	}
-
-	//08-04-2023(working)
+	// 08-04-2023(working)
 	@GetMapping("/userDto/{id}")
 	public UserDto getUserDtoById(@PathVariable int id) {
 		return this.userService.getUserDtoById(id);
 	}
+
 }

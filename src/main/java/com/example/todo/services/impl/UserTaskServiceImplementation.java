@@ -14,6 +14,8 @@ import com.example.todo.entities.TaskStatus;
 import com.example.todo.entities.User;
 import com.example.todo.entities.UserTask;
 import com.example.todo.entities.UserTaskHistory;
+import com.example.todo.exceptionHandling.DataNotFoundException;
+import com.example.todo.repository.UserRepository;
 import com.example.todo.repository.UserTaskHistoryRepository;
 import com.example.todo.repository.UserTaskRepository;
 import com.example.todo.services.UserTaskService;
@@ -26,11 +28,32 @@ public class UserTaskServiceImplementation implements UserTaskService {
 
 	@Autowired
 	private UserTaskRepository userTaskRepository;
+	
+	@Autowired
+	private UserRepository userRepository;
 
 	@Override
 	public UserTask saveUserTask(UserTask userTask) {
-		// TODO Auto-generated method stub
-		return userTaskRepository.save(userTask);
+		User u1 = new User();
+		u1.setId(userTask.getUser().getId());
+
+		Task t1 = new Task();
+		t1.setId(userTask.getTask().getId());
+
+		UserTask u11 = userTaskRepository.findByUserIdAndTaskId(u1.getId(), t1.getId());
+			
+		UserTask u12 =null;
+		if (u11 != null) 
+		{
+			throw new DataNotFoundException("Data already Present");
+		} 
+		else 
+		{
+			u12 = userTaskRepository.save(userTask);
+		}
+		
+		System.out.println("Hello123");
+		return userTaskRepository.save(u12);
 	}
 
 	@Override
@@ -118,6 +141,70 @@ public class UserTaskServiceImplementation implements UserTaskService {
 		}
 		return udto;
 	}
+
+	@Override
+	public UserTask updateTaskStatus(int id, UserTask userTask) {
+		// TODO Auto-generated method stub
+		Optional<UserTask> ut = userTaskRepository.findById(id);
+		if (ut.isPresent()) {
+			UserTask existingUserTask = ut.get();
+			existingUserTask.setStatus(userTask.getStatus());
+
+		}
+		return userTask;
+
+	}
+
+	@Override
+	public UserTask getUserTaskByUserAndTask(Integer user, Integer task) {
+		// TODO Auto-generated method stub
+		return userTaskRepository.findByUserIdAndTaskId(user, task);
+	}
+
+	//11-04-2023(checking) 5:00 PM
+	@Override
+	public UserTask updateAssignedTaskStatus(int id, UserTask userTask) {
+		// TODO Auto-generated method stub
+		 User u1 = new User();
+		    u1.setId(userTask.getUser().getId());
+
+		    Task t1 = new Task();
+		    t1.setId(userTask.getTask().getId());
+
+		    UserTask u11 = userTaskRepository.findByUserIdAndTaskId(u1.getId(), t1.getId());
+
+		    if (u11 != null) {
+		        throw new DataNotFoundException("Data already Present");
+		    } else {
+		        UserTask u12 = userTaskRepository.save(userTask);
+		        System.out.println("Hello123");
+		        
+		        // Update task status by user_id
+		        List<UserTask> userTasks = userTaskRepository.findByUserId(u1.getId());
+		        for (UserTask task : userTasks) {
+		            if (task.getTask().getId() == t1.getId()) {
+		                task.setStatus(userTask.getStatus());
+		                userTaskRepository.save(task);
+		            }
+		        }
+		        
+		        return u12;
+		    }
+		}
+
+	
+	//11-04-2023(working) 6:00 PM
+	//3. Update user_task (note :- should be entry in usertask_history)
+	@Override
+	public UserTask updateTaskStatusss(int userId, int taskId, TaskStatus status) {
+		// TODO Auto-generated method stub
+		    UserTask userTask = userTaskRepository.findByUserIdAndTaskId(userId, taskId);
+		    if (userTask == null) {
+		        throw new DataNotFoundException("UserTask not found for given userId and taskId");
+		    }
+		    userTask.setStatus(status);
+		    return userTaskRepository.save(userTask);
+		}
 
 	// 05-04-2023
 //	@Override

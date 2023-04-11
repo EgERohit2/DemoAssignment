@@ -3,8 +3,6 @@ package com.example.todo.services;
 import java.util.List;
 import java.util.Optional;
 
-import org.springframework.data.domain.Page;
-
 import com.example.todo.dto.TaskDto;
 import com.example.todo.dto.TasksDto;
 import com.example.todo.entities.Task;
@@ -20,11 +18,11 @@ public interface TaskService {
 	public TaskDto getTaskDtoById(int id);
 
 	public Task updateTask(int id, Task task);
-	
+
 	List<TasksDto> getAllwithDto(String search, Integer pageSize, Integer pageNumber);
 
 	public Optional<Task> getTaskById(int id);
-	
-	//07-04-2023(checking)
+
+	// 07-04-2023(checking)
 	public void deleteById(int id);
 }
