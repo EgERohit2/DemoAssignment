@@ -28,6 +28,7 @@ import com.example.todo.entities.TaskStatus;
 import com.example.todo.entities.User;
 import com.example.todo.entities.UserTask;
 import com.example.todo.entities.UserTaskHistory;
+import com.example.todo.exceptionHandling.DataNotFoundException;
 import com.example.todo.repository.UserRepository;
 import com.example.todo.repository.UserTaskRepository;
 import com.example.todo.services.TaskService;
@@ -67,6 +68,28 @@ public class UserTaskController {
 					HttpStatus.BAD_REQUEST);
 		}
 	}
+	
+//	@PostMapping("/userTask/data")
+//	public ResponseEntity<?> postAllData(@RequestBody UserTask userTask) {
+//	    try {
+//	        // Check if the user is already assigned to the task
+//	        UserTask existingUserTask = userTaskService.getUserTaskById(userTask.getId()).orElseThrow();
+//	        if (existingUserTask != null) {
+//	            // User is already assigned to the task, return error response
+//	            return new ResponseEntity<>(new ErrorResponseDto("Error", "User is already assigned to the task",
+//	                    "User with ID " + userTask.getUser().getId() + " is already assigned to Task with ID " + userTask.getTask().getId()),
+//	                    HttpStatus.BAD_REQUEST);
+//	        } else {
+//	            // User is not assigned to the task, save the UserTask data
+//	            userTaskService.saveUserTask(userTask);
+//	            return new ResponseEntity<>(new SuccessResponseDto("Success", "Data posted", userTask), HttpStatus.CREATED);
+//	        }
+//	    } catch (Exception e) {
+//	        return new ResponseEntity<>(new ErrorResponseDto("Error", "No data found", e.getMessage()),
+//	                HttpStatus.BAD_REQUEST);
+//	    }
+//	}
+
 
 	@GetMapping("/{id}")
 	public UserTask getUserTaskById(@PathVariable("id") int id) {
@@ -310,5 +333,29 @@ public class UserTaskController {
 		} catch (Exception e) {
 			return ResponseEntity.ok(e.getMessage());
 		}
+	}
+	
+	@PutMapping("update/taskstatus/{id}")
+	public String updateTaskStatus(@PathVariable int id,@RequestBody UserTask userTask) {
+		this.userTaskService.updateAssignedTaskStatus(id, userTask);
+		return "updated";
+	}
+	
+
+	//11-04-2023(working)
+	@PutMapping("/userTask/data")
+	public ResponseEntity<?> updateTaskStatus(@RequestBody UserTask userTask) {
+	    try {
+	        UserTask updatedUserTask = userTaskService.updateTaskStatusss(userTask.getUser().getId(),
+	                userTask.getTask().getId(), userTask.getStatus());
+	        return new ResponseEntity<>(new SuccessResponseDto("success", "Task status updated", updatedUserTask),
+	                HttpStatus.OK);
+	    } catch (DataNotFoundException e) {
+	        return new ResponseEntity<>(new ErrorResponseDto("Error", "Data not found", e.getMessage()),
+	                HttpStatus.NOT_FOUND);
+	    } catch (Exception e) {
+	        return new ResponseEntity<>(new ErrorResponseDto("Error", "Failed to update task status", e.getMessage()),
+	                HttpStatus.INTERNAL_SERVER_ERROR);
+	    }
 	}
 }

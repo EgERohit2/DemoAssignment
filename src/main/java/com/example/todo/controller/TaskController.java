@@ -65,6 +65,9 @@ public class TaskController {
 	}
 
 	// Admin can see all the list of tasks.
+	// 4.When a user fetches the list of tasks he/she should be able to see only
+	// those tasks that are assigned to him/her. Admin can see all the list of
+	// tasks.
 	@PreAuthorize("hasRole('ROLE_admin')")
 	@GetMapping("taskDto/getAllDto")
 	public List<TaskDto> getAllTaskDto() {
@@ -124,7 +127,8 @@ public class TaskController {
 	// 4.When a user fetches the list of tasks he/she should be able to see only
 	// those
 	// tasks that are assigned to him/her.
-	// 11.Users can create overdue tasks such that they can set the start date of the
+	// 11.Users can create overdue tasks such that they can set the start date of
+	// the
 	// tasks in future. These tasks should only be visible only when the start date
 	// has passed.
 	@GetMapping("/tasks")
