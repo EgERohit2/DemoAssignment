@@ -55,8 +55,7 @@ public class UserController {
 			userService.saveUser(user);
 			return new ResponseEntity<>(new SuccessResponseDto("success", "done", null), HttpStatus.CREATED);
 		} catch (Exception e) {
-			return new ResponseEntity<>(new ErrorResponseDto("Error ", "No data found", e.getMessage()),
-					HttpStatus.BAD_REQUEST);
+			return new ResponseEntity<>(new ErrorResponseDto("Error ", "No data found"), HttpStatus.BAD_REQUEST);
 		}
 	}
 
@@ -76,7 +75,7 @@ public class UserController {
 			userService.deleteUser(id);
 			return new ResponseEntity<>(new SuccessResponseDto("success", "deleted", null), HttpStatus.CREATED);
 		} catch (Exception e) {
-			return new ResponseEntity<>(new ErrorResponseDto("Error ", "No data found", e.getMessage()),
+			return new ResponseEntity<>(new ErrorResponseDto("Error ", "No data found"),
 					HttpStatus.BAD_REQUEST);
 		}
 	}
@@ -88,7 +87,7 @@ public class UserController {
 			this.userService.addRoles(user_id, role_id);
 			return new ResponseEntity<>(new SuccessResponseDto("success", "roles assigned", null), HttpStatus.CREATED);
 		} catch (Exception e) {
-			return new ResponseEntity<>(new ErrorResponseDto("Error ", "No data found", e.getMessage()),
+			return new ResponseEntity<>(new ErrorResponseDto("Error ", "No data found"),
 					HttpStatus.BAD_REQUEST);
 		}
 	}
