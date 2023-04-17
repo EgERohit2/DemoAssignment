@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Optional;
 
 import com.example.todo.dto.UserTaskDto;
+import com.example.todo.dto.UserTasksDto;
 import com.example.todo.entities.Task;
 import com.example.todo.entities.TaskStatus;
 import com.example.todo.entities.User;
@@ -12,7 +13,9 @@ import com.example.todo.entities.UserTask;
 
 public interface UserTaskService {
 
-	public UserTask saveUserTask(UserTask userTask);
+	public UserTask saveUserTask(UserTasksDto userTask);
+	
+	public UserTask savesUserTask(UserTask userTask);
 
 	public List<UserTask> getAllUserTasks();
 

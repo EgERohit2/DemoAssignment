@@ -23,6 +23,7 @@ import com.example.todo.component.JwtUtil;
 import com.example.todo.dto.ErrorResponseDto;
 import com.example.todo.dto.SuccessResponseDto;
 import com.example.todo.dto.UserTaskDto;
+import com.example.todo.dto.UserTasksDto;
 import com.example.todo.entities.Task;
 import com.example.todo.entities.TaskStatus;
 import com.example.todo.entities.User;
@@ -58,17 +59,16 @@ public class UserTaskController {
 	@Autowired
 	private UserService userService;
 
-	@PostMapping("/userTask/data")
-	public ResponseEntity<?> postAllData(@RequestBody UserTask userTask) {
+	@PostMapping("/AssignUserTask")
+	public ResponseEntity<?> postAllData(@RequestBody UserTasksDto userTask) {
 		try {
 			userTaskService.saveUserTask(userTask);
 			return new ResponseEntity<>(new SuccessResponseDto("success", "Data posted", userTask), HttpStatus.CREATED);
 		} catch (Exception e) {
-			return new ResponseEntity<>(new ErrorResponseDto("Error ", "No data found", e.getMessage()),
-					HttpStatus.BAD_REQUEST);
+			return new ResponseEntity<>(new ErrorResponseDto(e.getMessage(), "userNotFound"), HttpStatus.BAD_REQUEST);
 		}
 	}
-	
+
 //	@PostMapping("/userTask/data")
 //	public ResponseEntity<?> postAllData(@RequestBody UserTask userTask) {
 //	    try {
@@ -89,7 +89,6 @@ public class UserTaskController {
 //	                HttpStatus.BAD_REQUEST);
 //	    }
 //	}
-
 
 	@GetMapping("/{id}")
 	public UserTask getUserTaskById(@PathVariable("id") int id) {
@@ -130,7 +129,7 @@ public class UserTaskController {
 //				else {
 //					userTask.setStatus(TaskStatus.INPROGRESS);
 //				}  (this is not necessary)
-				userTaskService.saveUserTask(userTask);
+				userTaskService.savesUserTask(userTask);
 
 				UserTaskHistory userTaskHistory = new UserTaskHistory();
 				userTaskHistory.setUsertask(userTask);
@@ -183,8 +182,7 @@ public class UserTaskController {
 		if (!userTasks.isEmpty()) {
 			return new ResponseEntity<>(new SuccessResponseDto("success", "success", userTasks), HttpStatus.OK);
 		} else {
-			return new ResponseEntity<>(new ErrorResponseDto("dataNotFound", "Data Not Found", null),
-					HttpStatus.NOT_FOUND);
+			return new ResponseEntity<>(new ErrorResponseDto("usernot", "userNotFound"), HttpStatus.NOT_FOUND);
 		}
 	}
 
@@ -334,28 +332,26 @@ public class UserTaskController {
 			return ResponseEntity.ok(e.getMessage());
 		}
 	}
-	
+
 	@PutMapping("update/taskstatus/{id}")
-	public String updateTaskStatus(@PathVariable int id,@RequestBody UserTask userTask) {
+	public String updateTaskStatus(@PathVariable int id, @RequestBody UserTask userTask) {
 		this.userTaskService.updateAssignedTaskStatus(id, userTask);
 		return "updated";
 	}
-	
 
-	//11-04-2023(working)
+	// 11-04-2023(working)
 	@PutMapping("/userTask/data")
 	public ResponseEntity<?> updateTaskStatus(@RequestBody UserTask userTask) {
-	    try {
-	        UserTask updatedUserTask = userTaskService.updateTaskStatusss(userTask.getUser().getId(),
-	                userTask.getTask().getId(), userTask.getStatus());
-	        return new ResponseEntity<>(new SuccessResponseDto("success", "Task status updated", updatedUserTask),
-	                HttpStatus.OK);
-	    } catch (DataNotFoundException e) {
-	        return new ResponseEntity<>(new ErrorResponseDto("Error", "Data not found", e.getMessage()),
-	                HttpStatus.NOT_FOUND);
-	    } catch (Exception e) {
-	        return new ResponseEntity<>(new ErrorResponseDto("Error", "Failed to update task status", e.getMessage()),
-	                HttpStatus.INTERNAL_SERVER_ERROR);
-	    }
+		try {
+			UserTask updatedUserTask = userTaskService.updateTaskStatusss(userTask.getUser().getId(),
+					userTask.getTask().getId(), userTask.getStatus());
+			return new ResponseEntity<>(new SuccessResponseDto("success", "Task status updated", updatedUserTask),
+					HttpStatus.OK);
+		} catch (DataNotFoundException e) {
+			return new ResponseEntity<>(new ErrorResponseDto("Error", "Data not found"), HttpStatus.NOT_FOUND);
+		} catch (Exception e) {
+			return new ResponseEntity<>(new ErrorResponseDto("Error", "Failed to update task status"),
+					HttpStatus.INTERNAL_SERVER_ERROR);
+		}
 	}
 }

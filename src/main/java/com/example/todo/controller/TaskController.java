@@ -48,18 +48,17 @@ public class TaskController {
 	@Autowired
 	private TaskRepository taskRepository;
 
-	@PostMapping("task/data")
+	@PostMapping("/task")
 	public ResponseEntity<?> postAllData(@RequestBody Task task) {
 		try {
 			taskService.saveTask(task);
 			return new ResponseEntity<>(new SuccessResponseDto("success", "Data posted", null), HttpStatus.CREATED);
 		} catch (Exception e) {
-			return new ResponseEntity<>(new ErrorResponseDto("Error ", "No data found", e.getMessage()),
-					HttpStatus.BAD_REQUEST);
+			return new ResponseEntity<>(new ErrorResponseDto("Error ", "No data found"), HttpStatus.BAD_REQUEST);
 		}
 	}
 
-	@GetMapping("task")
+	@GetMapping("/task")
 	public List<Task> getAllData() {
 		return taskService.getAllTasks();
 	}
@@ -69,9 +68,16 @@ public class TaskController {
 	// those tasks that are assigned to him/her. Admin can see all the list of
 	// tasks.
 	@PreAuthorize("hasRole('ROLE_admin')")
-	@GetMapping("taskDto/getAllDto")
-	public List<TaskDto> getAllTaskDto() {
-		return taskService.getAllTaskDto();
+	@GetMapping("/getAllDto")
+	public ResponseEntity<?> getAllTaskDto() {
+		try {
+
+			return new ResponseEntity<>(new SuccessResponseDto("success", "done", taskService.getAllTaskDto()),
+					HttpStatus.OK);
+		} catch (Exception e) {
+			return new ResponseEntity<>(new ErrorResponseDto("Error ", "No data found"), HttpStatus.NOT_FOUND);
+		}
+
 	}
 
 	@PutMapping("update/task")
@@ -80,8 +86,7 @@ public class TaskController {
 			taskService.updateTask(id, task);
 			return new ResponseEntity<>(new SuccessResponseDto("success", "Data updated", null), HttpStatus.CREATED);
 		} catch (Exception e) {
-			return new ResponseEntity<>(new ErrorResponseDto("Error ", "No data found", e.getMessage()),
-					HttpStatus.BAD_REQUEST);
+			return new ResponseEntity<>(new ErrorResponseDto("Error ", "No data found"), HttpStatus.BAD_REQUEST);
 		}
 	}
 
@@ -155,14 +160,13 @@ public class TaskController {
 	// Users do not have the permission to delete a task. Only Admin can delete a
 	// task.
 	@PreAuthorize("hasRole('ROLE_admin')")
-	@DeleteMapping("task/delete/{id}")
+	@DeleteMapping("/delete/{id}")
 	public ResponseEntity<?> deleteTask(@PathVariable int id) {
 		try {
 			taskRepository.deleteById(id);
 			return new ResponseEntity<>(new SuccessResponseDto("success", "deleted", null), HttpStatus.CREATED);
 		} catch (Exception e) {
-			return new ResponseEntity<>(new ErrorResponseDto("Error ", "No data found", e.getMessage()),
-					HttpStatus.BAD_REQUEST);
+			return new ResponseEntity<>(new ErrorResponseDto("Error ", "No data found"), HttpStatus.BAD_REQUEST);
 		}
 
 	}

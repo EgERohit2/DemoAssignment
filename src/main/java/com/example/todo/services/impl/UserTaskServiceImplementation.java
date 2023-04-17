@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.example.todo.dto.UserTaskDto;
+import com.example.todo.dto.UserTasksDto;
 import com.example.todo.entities.Task;
 import com.example.todo.entities.TaskStatus;
 import com.example.todo.entities.User;
@@ -28,30 +29,33 @@ public class UserTaskServiceImplementation implements UserTaskService {
 
 	@Autowired
 	private UserTaskRepository userTaskRepository;
-	
+
 	@Autowired
 	private UserRepository userRepository;
 
 	@Override
-	public UserTask saveUserTask(UserTask userTask) {
+	public UserTask saveUserTask(UserTasksDto userTask) {
 		User u1 = new User();
-		u1.setId(userTask.getUser().getId());
+		u1.setId(userTask.getUserId());
 
 		Task t1 = new Task();
-		t1.setId(userTask.getTask().getId());
+		t1.setId(userTask.getTaskId());
+
+		UserTask uNew = new UserTask();
+		uNew.setEndDate(userTask.getEndDate());
+		uNew.setStartDate(userTask.getStartDate());
+		uNew.setTask(t1);
+		uNew.setUser(u1);
 
 		UserTask u11 = userTaskRepository.findByUserIdAndTaskId(u1.getId(), t1.getId());
-			
-		UserTask u12 =null;
-		if (u11 != null) 
-		{
+		System.out.println(u11);
+		UserTask u12 = null;
+		if (u11 != null) {
 			throw new DataNotFoundException("Data already Present");
-		} 
-		else 
-		{
-			u12 = userTaskRepository.save(userTask);
+		} else {
+			u12 = userTaskRepository.save(uNew);
 		}
-		
+
 		System.out.println("Hello123");
 		return userTaskRepository.save(u12);
 	}
@@ -161,50 +165,70 @@ public class UserTaskServiceImplementation implements UserTaskService {
 		return userTaskRepository.findByUserIdAndTaskId(user, task);
 	}
 
-	//11-04-2023(checking) 5:00 PM
+	// 11-04-2023(checking) 5:00 PM
 	@Override
 	public UserTask updateAssignedTaskStatus(int id, UserTask userTask) {
 		// TODO Auto-generated method stub
-		 User u1 = new User();
-		    u1.setId(userTask.getUser().getId());
+		User u1 = new User();
+		u1.setId(userTask.getUser().getId());
 
-		    Task t1 = new Task();
-		    t1.setId(userTask.getTask().getId());
+		Task t1 = new Task();
+		t1.setId(userTask.getTask().getId());
 
-		    UserTask u11 = userTaskRepository.findByUserIdAndTaskId(u1.getId(), t1.getId());
+		UserTask u11 = userTaskRepository.findByUserIdAndTaskId(u1.getId(), t1.getId());
 
-		    if (u11 != null) {
-		        throw new DataNotFoundException("Data already Present");
-		    } else {
-		        UserTask u12 = userTaskRepository.save(userTask);
-		        System.out.println("Hello123");
-		        
-		        // Update task status by user_id
-		        List<UserTask> userTasks = userTaskRepository.findByUserId(u1.getId());
-		        for (UserTask task : userTasks) {
-		            if (task.getTask().getId() == t1.getId()) {
-		                task.setStatus(userTask.getStatus());
-		                userTaskRepository.save(task);
-		            }
-		        }
-		        
-		        return u12;
-		    }
+		if (u11 != null) {
+			throw new DataNotFoundException("Data already Present");
+		} else {
+			UserTask u12 = userTaskRepository.save(userTask);
+			System.out.println("Hello123");
+
+			// Update task status by user_id
+			List<UserTask> userTasks = userTaskRepository.findByUserId(u1.getId());
+			for (UserTask task : userTasks) {
+				if (task.getTask().getId() == t1.getId()) {
+					task.setStatus(userTask.getStatus());
+					userTaskRepository.save(task);
+				}
+			}
+
+			return u12;
 		}
+	}
 
-	
-	//11-04-2023(working) 6:00 PM
-	//3. Update user_task (note :- should be entry in usertask_history)
+	// 11-04-2023(working) 6:00 PM
+	// 3. Update user_task (note :- should be entry in usertask_history)
 	@Override
 	public UserTask updateTaskStatusss(int userId, int taskId, TaskStatus status) {
 		// TODO Auto-generated method stub
-		    UserTask userTask = userTaskRepository.findByUserIdAndTaskId(userId, taskId);
-		    if (userTask == null) {
-		        throw new DataNotFoundException("UserTask not found for given userId and taskId");
-		    }
-		    userTask.setStatus(status);
-		    return userTaskRepository.save(userTask);
+		UserTask userTask = userTaskRepository.findByUserIdAndTaskId(userId, taskId);
+		if (userTask == null) {
+			throw new DataNotFoundException("UserTask not found for given userId and taskId");
 		}
+		userTask.setStatus(status);
+		return userTaskRepository.save(userTask);
+	}
+
+	@Override
+	public UserTask savesUserTask(UserTask userTask) {
+		User u1 = new User();
+		u1.setId(userTask.getUser().getId());
+
+		Task t1 = new Task();
+		t1.setId(userTask.getTask().getId());
+
+		UserTask u11 = userTaskRepository.findByUserIdAndTaskId(u1.getId(), t1.getId());
+
+		UserTask u12 = null;
+		if (u11 != null) {
+			throw new DataNotFoundException("Data already Present");
+		} else {
+			u12 = userTaskRepository.save(userTask);
+		}
+
+		System.out.println("Hello123");
+		return userTaskRepository.save(u12);
+	}
 
 	// 05-04-2023
 //	@Override
