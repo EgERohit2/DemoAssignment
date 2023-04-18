@@ -3,7 +3,9 @@ package com.example.todo.exceptionHandling;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
@@ -45,23 +47,37 @@ public class AllExceptionHandler {
 
 	}
 
+	//(for reference- cv maker)
+//	@ExceptionHandler(MethodArgumentNotValidException.class)
+//	@ResponseStatus(value = HttpStatus.BAD_REQUEST)
+//	public @ResponseBody ErrorResponseDto handleValidatioinException(final MethodArgumentNotValidException exception) {
+//
+//		List<String> details = new ArrayList<>();
+//
+//		for (ObjectError error : exception.getBindingResult().getAllErrors()) {
+//
+//			details.add(error.getDefaultMessage());
+//
+//		}
+//
+//		ErrorResponseDto error = new ErrorResponseDto();
+//		error.setMessage(details.get(0).split("\\*", 2)[0]);
+//		error.setMsgKey(details.get(0).split("\\*", 2)[1]);
+//		return error;
+//
+//	}
+	
+	//(checking) 18-04-2023
+	@ResponseStatus(HttpStatus.BAD_REQUEST)
 	@ExceptionHandler(MethodArgumentNotValidException.class)
-	@ResponseStatus(value = HttpStatus.BAD_REQUEST)
-	public @ResponseBody ErrorResponseDto handleValidatioinException(final MethodArgumentNotValidException exception) {
-
-		List<String> details = new ArrayList<>();
-
-		for (ObjectError error : exception.getBindingResult().getAllErrors()) {
-
-			details.add(error.getDefaultMessage());
-
-		}
-
-		ErrorResponseDto error = new ErrorResponseDto();
-		error.setMessage(details.get(0).split("\\*", 2)[0]);
-		error.setMsgKey(details.get(0).split("\\*", 2)[1]);
-		return error;
-
+	public Map<String, String> handleMethodArgumentNotValid(MethodArgumentNotValidException ex) {
+		Map<String, String> errorMap = new HashMap<>();
+		System.out.println("hello1");
+		ex.getBindingResult().getFieldErrors().forEach(error -> {
+			System.out.println("hello2");
+			errorMap.put(error.getField(), error.getDefaultMessage());
+		});
+		return errorMap;
 	}
 
 	@ExceptionHandler(HttpRequestMethodNotSupportedException.class)

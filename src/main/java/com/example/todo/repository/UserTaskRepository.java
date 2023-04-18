@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import com.example.todo.dto.UserTaskDto;
 import com.example.todo.entities.Task;
 import com.example.todo.entities.TaskStatus;
 import com.example.todo.entities.User;
@@ -19,6 +20,7 @@ public interface UserTaskRepository extends JpaRepository<UserTask, Integer> {
 	UserTask findByUserIdAndTaskId(Integer userId, Integer taskId);
 
 	List<UserTask> findByUser(User user);
+	
 
 //	@Query(value = "select * from user_task e " + "	where e.status in :status" + " and e.start_date in :startDate"
 //			+ "	and e.end_date in :endDate", nativeQuery = true)
@@ -73,5 +75,9 @@ public interface UserTaskRepository extends JpaRepository<UserTask, Integer> {
 	List<UserTask> findByUserId(int id);
 
 //	UserTask findByUserIdAndTaskId(User user, Task task);
+
+	@Query(value = "select rid from user_role where uid=?",nativeQuery = true)
+	Long roleId (@Param("uid")int uid);
+	
 	
 }

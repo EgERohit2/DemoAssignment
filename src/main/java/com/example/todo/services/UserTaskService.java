@@ -50,7 +50,10 @@ public interface UserTaskService {
 	//11-04-2023 (checking) 4.30 pm
 	public UserTask updateAssignedTaskStatus(int id, UserTask userTask);
 	
-	public UserTask updateTaskStatusss(int userId, int taskId, TaskStatus status); 
+	public UserTask updateTaskStatusss(int userId, int taskId, TaskStatus status);
+
+	//checking (18=04-2023) 
+	public List<UserTaskDto> getAllUserTaskDtoByUser(User user); 
 	 
 
 }

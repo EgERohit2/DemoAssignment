@@ -1,5 +1,6 @@
 package com.example.todo.controller;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -22,6 +23,8 @@ import org.springframework.web.bind.annotation.RestController;
 import com.example.todo.component.JwtUtil;
 import com.example.todo.dto.ErrorResponseDto;
 import com.example.todo.dto.SuccessResponseDto;
+import com.example.todo.dto.TaskDto;
+import com.example.todo.dto.TasksDto;
 import com.example.todo.dto.UserTaskDto;
 import com.example.todo.dto.UserTasksDto;
 import com.example.todo.entities.Task;
@@ -30,6 +33,7 @@ import com.example.todo.entities.User;
 import com.example.todo.entities.UserTask;
 import com.example.todo.entities.UserTaskHistory;
 import com.example.todo.exceptionHandling.DataNotFoundException;
+import com.example.todo.repository.RoleRepository;
 import com.example.todo.repository.UserRepository;
 import com.example.todo.repository.UserTaskRepository;
 import com.example.todo.services.TaskService;
@@ -55,6 +59,9 @@ public class UserTaskController {
 
 	@Autowired
 	private UserRepository userRepository;
+
+	@Autowired
+	private RoleRepository roleRepository;
 
 	@Autowired
 	private UserService userService;
@@ -217,30 +224,168 @@ public class UserTaskController {
 	// 05-04-2023(Working properly- based on status, Not for startDate,endDate)
 	// 07-04-2023(working perfectly)
 //10.Users should be able to filter the tasks based on the status of the task, start date and end date.
+//	@GetMapping("/tasks/search")
+//	public List<UserTaskDto> getAllFilter(@RequestParam(value = "status", required = false) TaskStatus status,
+//			@RequestParam(value = "startDate", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date startDate,
+//			@RequestParam(value = "endDate", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date endDate) {
+//
+//		List<UserTaskDto> tasks = userTaskService.getAllUserTaskDto();
+////		List<Object[]> tasks = userTaskService.getAllUserTask();
+//
+//		if (status != null) {
+//			tasks = tasks.stream().filter(task -> task.getStatus() == status).collect(Collectors.toList());
+//		}
+//
+//		if (startDate != null && endDate != null) {
+//			tasks = tasks.stream().filter(task -> (task.getStartDate().compareTo(startDate) >= 0)
+//					&& (task.getEndDate().compareTo(endDate) <= 0)).collect(Collectors.toList());
+//		} else if (startDate != null) {
+//			tasks = tasks.stream().filter(task -> task.getStartDate().compareTo(startDate) >= 0)
+//					.collect(Collectors.toList());
+//		} else if (endDate != null) {
+//			tasks = tasks.stream().filter(task -> task.getEndDate().compareTo(endDate) <= 0)
+//					.collect(Collectors.toList());
+//		}
+//
+//		return tasks;
+//	}
+
+	// checking 9.35 am(working partially)
 	@GetMapping("/tasks/search")
-	public List<UserTaskDto> getAllFilter(@RequestParam(value = "status", required = false) TaskStatus status,
+	public ResponseEntity<?> getAllFilter(@RequestParam(value = "status", required = false) TaskStatus status,
 			@RequestParam(value = "startDate", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date startDate,
-			@RequestParam(value = "endDate", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date endDate) {
+			@RequestParam(value = "endDate", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date endDate,
+			@RequestHeader("Authorization") String token) {
 
-		List<UserTaskDto> tasks = userTaskService.getAllUserTaskDto();
-//		List<Object[]> tasks = userTaskService.getAllUserTask();
+		// Extract username from token
+		String username = JwtUtil.parseToken(token.replace("Bearer ", ""));
 
-		if (status != null) {
-			tasks = tasks.stream().filter(task -> task.getStatus() == status).collect(Collectors.toList());
+		// Fetch user by username
+		User user = userRepository.findByUsername(username);
+
+		System.out.println(user.getId());
+
+		// take role id from user
+		Long s = userTaskRepository.roleId(user.getId());
+		System.out.println(s);
+		// get rolename from roleId
+		String rolen = roleRepository.name(s);
+
+		// if it is equal then it will continue with rest of the code
+		if (user != null && rolen.equals("admin")) {
+			List<UserTaskDto> tasks = userTaskService.getAllUserTaskDto();
+
+			if (status != null) {
+				tasks = tasks.stream().filter(task -> task.getStatus() == status).collect(Collectors.toList());
+			}
+
+			else if (startDate != null) {
+				tasks = tasks.stream().filter(task -> task.getStartDate().compareTo(startDate) >= 0)
+						.collect(Collectors.toList());
+			} else if (endDate != null) {
+				tasks = tasks.stream().filter(task -> task.getEndDate().compareTo(endDate) <= 0)
+						.collect(Collectors.toList());
+			}
+
+			return ResponseEntity.ok(tasks);
 		}
 
-		if (startDate != null && endDate != null) {
-			tasks = tasks.stream().filter(task -> (task.getStartDate().compareTo(startDate) >= 0)
-					&& (task.getEndDate().compareTo(endDate) <= 0)).collect(Collectors.toList());
-		} else if (startDate != null) {
-			tasks = tasks.stream().filter(task -> task.getStartDate().compareTo(startDate) >= 0)
-					.collect(Collectors.toList());
-		} else if (endDate != null) {
-			tasks = tasks.stream().filter(task -> task.getEndDate().compareTo(endDate) <= 0)
-					.collect(Collectors.toList());
+		else if (user != null && rolen.equals("employee")) {
+			List<UserTask> taskss = userTaskRepository.findByUser(user);
+			System.out.println("@@@@@" + user);
+			System.out.println("&&&&&" + taskss);
+			if (status != null) {
+				taskss = taskss.stream().filter(task -> task.getStatus() == status).collect(Collectors.toList());
+			} else if (startDate != null) {
+				taskss = taskss.stream().filter(task -> task.getStartDate().compareTo(startDate) >= 0)
+						.collect(Collectors.toList());
+			} else if (endDate != null) {
+				taskss = taskss.stream().filter(task -> task.getEndDate().compareTo(endDate) <= 0)
+						.collect(Collectors.toList());
+			}
+
+			return ResponseEntity.ok(taskss);
+		} else {
+			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+		}
+	}
+
+	// 18-04-2023(checking)-(working-4.00pm)
+	@GetMapping("/tests")
+	public ResponseEntity<?> getTasks(@RequestParam(value = "status", required = false) TaskStatus status,
+			@RequestParam(value = "startDate", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date startDate,
+			@RequestParam(value = "endDate", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date endDate,
+			@RequestParam(value = "assigned", required = false, defaultValue = "false") boolean assigned,
+			@RequestHeader("Authorization") String token) {
+
+		String username = JwtUtil.parseToken(token.replace("Bearer ", ""));
+		User user = userRepository.findByUsername(username);
+
+		if (user == null) {
+			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
 		}
 
-		return tasks;
+		String roleName = roleRepository.name(userTaskRepository.roleId(user.getId()));
+
+		if (roleName.equals("admin")) {
+			List<UserTaskDto> tasks = userTaskService.getAllUserTaskDto();
+
+			if (status != null) {
+				tasks = tasks.stream().filter(task -> task.getStatus() == status).collect(Collectors.toList());
+			}
+
+			if (startDate != null) {
+				tasks = tasks.stream().filter(task -> task.getStartDate().compareTo(startDate) >= 0)
+						.collect(Collectors.toList());
+			}
+
+			if (endDate != null) {
+				tasks = tasks.stream().filter(task -> task.getEndDate().compareTo(endDate) <= 0)
+						.collect(Collectors.toList());
+			}
+
+			return ResponseEntity.ok(tasks);
+		} else if (roleName.equals("employee")) {
+			List<TaskDto> taskDtos = new ArrayList<>();
+			Date currentDate = new Date();
+
+			List<UserTask> userTasks = userTaskRepository.findByUser(user);
+
+			if (assigned) {
+				for (UserTask userTask : userTasks) {
+					Task task = userTask.getTask();
+					Date taskStartDate = userTask.getStartDate();
+					if (taskStartDate != null && currentDate.after(taskStartDate)) {
+						TaskDto taskDto = new TaskDto(task.getName(), task.getDesc());
+						taskDtos.add(taskDto);
+					}
+				}
+			} else {
+				List<UserTask> tasks = userTasks;
+
+				if (status != null) {
+					tasks = tasks.stream().filter(task -> task.getStatus() == status).collect(Collectors.toList());
+				}
+
+				if (startDate != null) {
+					tasks = tasks.stream().filter(task -> task.getStartDate().compareTo(startDate) >= 0)
+							.collect(Collectors.toList());
+				}
+
+				if (endDate != null) {
+					tasks = tasks.stream().filter(task -> task.getEndDate().compareTo(endDate) <= 0)
+							.collect(Collectors.toList());
+				}
+
+				taskDtos = tasks.stream()
+						.map(userTask -> new TaskDto(userTask.getTask().getName(), userTask.getTask().getDesc()))
+						.collect(Collectors.toList());
+			}
+
+			return ResponseEntity.ok(taskDtos);
+		}
+
+		return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
 	}
 
 	// 07-04-2023(working)
@@ -354,4 +499,168 @@ public class UserTaskController {
 					HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
+
+	// checking(18-04-2023)
+	@GetMapping("/tests12")
+	public ResponseEntity<?> getTasks(@RequestParam(value = "status", required = false) TaskStatus status,
+			@RequestParam(value = "startDate", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date startDate,
+			@RequestParam(value = "endDate", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date endDate,
+			@RequestParam(value = "assigned", required = false, defaultValue = "false") boolean assigned,
+			@RequestParam(value = "user", required = false) String user, @RequestHeader("Authorization") String token) {
+
+		String username = JwtUtil.parseToken(token.replace("Bearer ", ""));
+		User user1 = userRepository.findByUsername(username);
+
+		if (user1 == null) {
+			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+		}
+
+		String roleName = roleRepository.name(userTaskRepository.roleId(user1.getId()));
+
+		if (roleName.equals("admin")) {
+			List<UserTaskDto> tasks = userTaskService.getAllUserTaskDto();
+
+			if (user1 != null) {
+				tasks = tasks.stream().filter(task -> task.getUser().toString().equals(user1))
+						.collect(Collectors.toList());
+			}
+
+			if (status != null) {
+				tasks = tasks.stream().filter(task -> task.getStatus() == status).collect(Collectors.toList());
+			}
+
+			if (startDate != null) {
+				tasks = tasks.stream().filter(task -> task.getStartDate().compareTo(startDate) >= 0)
+						.collect(Collectors.toList());
+			}
+
+			if (endDate != null) {
+				tasks = tasks.stream().filter(task -> task.getEndDate().compareTo(endDate) <= 0)
+						.collect(Collectors.toList());
+			}
+
+			return ResponseEntity.ok(tasks);
+		} else if (roleName.equals("employee")) {
+			List<TaskDto> taskDtos = new ArrayList<>();
+			Date currentDate = new Date();
+
+			List<UserTask> userTasks = userTaskRepository.findByUser(user1);
+
+			if (assigned) {
+				for (UserTask userTask : userTasks) {
+					Task task = userTask.getTask();
+					Date taskStartDate = userTask.getStartDate();
+					if (taskStartDate != null && currentDate.after(taskStartDate)) {
+						TaskDto taskDto = new TaskDto(task.getName(), task.getDesc());
+						taskDtos.add(taskDto);
+					}
+				}
+			} else {
+				List<UserTask> tasks = userTasks;
+
+				if (status != null) {
+					tasks = tasks.stream().filter(task -> task.getStatus() == status).collect(Collectors.toList());
+				}
+
+				if (startDate != null) {
+					tasks = tasks.stream().filter(task -> task.getStartDate().compareTo(startDate) >= 0)
+							.collect(Collectors.toList());
+				}
+
+				if (endDate != null) {
+					tasks = tasks.stream().filter(task -> task.getEndDate().compareTo(endDate) <= 0)
+							.collect(Collectors.toList());
+				}
+
+				taskDtos = tasks.stream()
+						.map(userTask -> new TaskDto(userTask.getTask().getName(), userTask.getTask().getDesc()))
+						.collect(Collectors.toList());
+			}
+
+			return ResponseEntity.ok(taskDtos);
+		}
+
+		return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+	}
+
+	@GetMapping("/tasks/test2")
+	public ResponseEntity<?> getTasks(@RequestParam(value = "status", required = false) TaskStatus status,
+			@RequestParam(value = "startDate", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date startDate,
+			@RequestParam(value = "endDate", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date endDate,
+			@RequestParam(value = "assigned", required = false, defaultValue = "false") boolean assigned,
+			@RequestParam(value = "search") String search, @RequestParam(value = "pageNumber") Integer pageNumber,
+			@RequestParam(value = "pageSize") Integer pageSize, @RequestHeader("Authorization") String token) {
+
+		String username = JwtUtil.parseToken(token.replace("Bearer ", ""));
+		User user = userRepository.findByUsername(username);
+
+		if (user == null) {
+			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+		}
+
+		String roleName = roleRepository.name(userTaskRepository.roleId(user.getId()));
+
+		if (roleName.equals("admin")) {
+			List<UserTaskDto> tasks = userTaskService.getAllUserTaskDto();
+
+			if (status != null) {
+				tasks = tasks.stream().filter(task -> task.getStatus() == status).collect(Collectors.toList());
+			}
+
+			if (startDate != null) {
+				tasks = tasks.stream().filter(task -> task.getStartDate().compareTo(startDate) >= 0)
+						.collect(Collectors.toList());
+			}
+
+			if (endDate != null) {
+				tasks = tasks.stream().filter(task -> task.getEndDate().compareTo(endDate) <= 0)
+						.collect(Collectors.toList());
+			}
+
+			List<TasksDto> cvs = taskService.getAllwithDto(search, pageNumber, pageSize);
+			return new ResponseEntity<>(cvs, HttpStatus.OK);
+		} else if (roleName.equals("employee")) {
+			List<TaskDto> taskDtos = new ArrayList<>();
+			Date currentDate = new Date();
+
+			List<UserTask> userTasks = userTaskRepository.findByUser(user);
+
+			if (assigned) {
+				for (UserTask userTask : userTasks) {
+					Task task = userTask.getTask();
+					Date taskStartDate = userTask.getStartDate();
+					if (taskStartDate != null && currentDate.after(taskStartDate)) {
+						TaskDto taskDto = new TaskDto(task.getName(), task.getDesc());
+						taskDtos.add(taskDto);
+					}
+				}
+			} else {
+				List<UserTask> tasks = userTasks;
+
+				if (status != null) {
+					tasks = tasks.stream().filter(task -> task.getStatus() == status).collect(Collectors.toList());
+				}
+
+				if (startDate != null) {
+					tasks = tasks.stream().filter(task -> task.getStartDate().compareTo(startDate) >= 0)
+							.collect(Collectors.toList());
+				}
+
+				if (endDate != null) {
+					tasks = tasks.stream().filter(task -> task.getEndDate().compareTo(endDate) <= 0)
+							.collect(Collectors.toList());
+				}
+
+				taskDtos = tasks.stream()
+						.map(userTask -> new TaskDto(userTask.getTask().getName(), userTask.getTask().getDesc()))
+						.collect(Collectors.toList());
+			}
+
+			List<TasksDto> cvs = taskService.getAllwithDto(search, pageNumber, pageSize);
+			return new ResponseEntity<>(cvs, HttpStatus.OK);
+		}
+
+		return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+	}
+
 }

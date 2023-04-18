@@ -230,6 +230,13 @@ public class UserTaskServiceImplementation implements UserTaskService {
 		return userTaskRepository.save(u12);
 	}
 
+	//checking(18-04-2023) 
+	@Override
+	public List<UserTaskDto> getAllUserTaskDtoByUser(User user) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 	// 05-04-2023
 //	@Override
 //	public List<UserTaskDto> findBySearch(String search) {
