@@ -3,8 +3,10 @@ package com.example.todo.controller;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -24,7 +26,9 @@ import com.example.todo.dto.ErrorResponseDto;
 import com.example.todo.dto.SuccessResponseDto;
 import com.example.todo.dto.TaskDto;
 import com.example.todo.dto.TasksDto;
+import com.example.todo.dto.UserTaskDto;
 import com.example.todo.entities.Task;
+import com.example.todo.entities.TaskStatus;
 import com.example.todo.entities.User;
 import com.example.todo.entities.UserTask;
 import com.example.todo.repository.TaskRepository;
@@ -71,16 +75,14 @@ public class TaskController {
 	@GetMapping("/getAllDto")
 	public ResponseEntity<?> getAllTaskDto() {
 		try {
-
 			return new ResponseEntity<>(new SuccessResponseDto("success", "done", taskService.getAllTaskDto()),
 					HttpStatus.OK);
 		} catch (Exception e) {
 			return new ResponseEntity<>(new ErrorResponseDto("Error ", "No data found"), HttpStatus.NOT_FOUND);
 		}
-
 	}
 
-	@PutMapping("update/task")
+	@PutMapping("updateTask")
 	public ResponseEntity<?> updateTask(@RequestParam(value = "task_id") int id, @RequestBody Task task) {
 		try {
 			taskService.updateTask(id, task);
@@ -155,6 +157,8 @@ public class TaskController {
 
 		return ResponseEntity.ok(taskDtos);
 	}
+	
+	
 
 	// 07-04-2023(working)
 	// Users do not have the permission to delete a task. Only Admin can delete a

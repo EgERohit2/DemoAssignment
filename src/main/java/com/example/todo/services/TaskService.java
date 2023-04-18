@@ -19,6 +19,7 @@ public interface TaskService {
 
 	public Task updateTask(int id, Task task);
 
+	//(need implementation for pagination)
 	List<TasksDto> getAllwithDto(String search, Integer pageSize, Integer pageNumber);
 
 	public Optional<Task> getTaskById(int id);
