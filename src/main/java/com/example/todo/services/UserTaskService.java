@@ -53,7 +53,11 @@ public interface UserTaskService {
 	public UserTask updateTaskStatusss(int userId, int taskId, TaskStatus status);
 
 	//checking (18=04-2023) 
-	public List<UserTaskDto> getAllUserTaskDtoByUser(User user); 
+	public List<UserTaskDto> getAllUserTaskDtoByUser(User user);
+
+	public UserTask updateTaskStatusWithHistory(int userId, int id, TaskStatus status)throws Exception; 
+	
+	
 	 
 
 }

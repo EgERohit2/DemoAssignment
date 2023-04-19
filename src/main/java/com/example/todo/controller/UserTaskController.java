@@ -34,6 +34,7 @@ import com.example.todo.entities.UserTask;
 import com.example.todo.entities.UserTaskHistory;
 import com.example.todo.exceptionHandling.DataNotFoundException;
 import com.example.todo.repository.RoleRepository;
+import com.example.todo.repository.TaskRepository;
 import com.example.todo.repository.UserRepository;
 import com.example.todo.repository.UserTaskRepository;
 import com.example.todo.services.TaskService;
@@ -53,6 +54,9 @@ public class UserTaskController {
 
 	@Autowired
 	private TaskService taskService;
+
+	@Autowired
+	private TaskRepository taskRepository;
 
 	@Autowired
 	private UserTaskHistoryService userTaskHistoryService;
@@ -310,7 +314,7 @@ public class UserTaskController {
 		}
 	}
 
-	// 18-04-2023(checking)-(working-4.00pm)
+	// 18-04-2023(checking)-(working-4.00pm)- don't touch this
 	@GetMapping("/tests")
 	public ResponseEntity<?> getTasks(@RequestParam(value = "status", required = false) TaskStatus status,
 			@RequestParam(value = "startDate", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date startDate,
@@ -485,8 +489,8 @@ public class UserTaskController {
 	}
 
 	// 11-04-2023(working)
-	@PutMapping("/userTask/data")
-	public ResponseEntity<?> updateTaskStatus(@RequestBody UserTask userTask) {
+	@PutMapping("/userTask/data/{id}")
+	public ResponseEntity<?> updateTaskStatuss(@PathVariable int id, @RequestBody UserTask userTask) {
 		try {
 			UserTask updatedUserTask = userTaskService.updateTaskStatusss(userTask.getUser().getId(),
 					userTask.getTask().getId(), userTask.getStatus());
@@ -663,4 +667,69 @@ public class UserTaskController {
 		return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
 	}
 
+	// 19-04-2023(checking) not working
+//	@PutMapping("/upstatus")
+//	public ResponseEntity<?> update(@RequestHeader("Authorization") String token,
+//			@RequestBody UserTask userTask){
+//		
+//		String username = JwtUtil.parseToken(token.replace("Bearer ", ""));
+//		User user1 = userRepository.findByUsername(username);
+//
+//		if (user1 == null) {
+//			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+//		}
+//
+//		String roleName = roleRepository.name(userTaskRepository.roleId(user1.getId()));
+//
+//		if (roleName.equals("admin")) {
+//		
+//		List<UserTask> uid = userTaskRepository.tasksId(user1.getId());
+//		
+//		UserTask updateUserTask = userTaskService.updateTaskStatusss(userTask.getUser().getId(),
+//					userTask.getTask().getId(), userTask.getStatus());
+//		
+//		 UserTask assignedTask = userTaskRepository.findByUserIdAndTaskId(user1, userTask.getTask());
+//		    if (assignedTask == null) {
+//		        return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+//		    }
+//
+//		    UserTask updateUserTasks = userTaskService.updateTaskStatusss(user1.getId(),
+//		                userTask.getTask().getId(), userTask.getStatus());
+//		    this.userTaskRepository.save(updateUserTasks);
+//
+//		    return ResponseEntity.ok(updateUserTasks);
+//		}
+//		
+//	
+//		return null;
+//	
+//	}
+
+	//19-04-2023(working) note- need to resolve jacksonbind error
+	@PutMapping("/userTask/data/test/{userId}")
+	public ResponseEntity<?> updateTaskStatusTesting(@RequestHeader("Authorization") String token,
+			@PathVariable("userId") int userId, @RequestBody UserTask userTask) {
+		try {
+			// Extract username from JWT token
+			String username = JwtUtil.parseToken(token.replace("Bearer ", ""));
+			User user = userRepository.findByUsername(username);
+
+			//check if the user id we are passing is matches with the userid from token user
+			if (user == null || (user.getId() != userId
+					&& !roleRepository.name(userTaskRepository.roleId(user.getId())).equals("admin"))) {
+				return new ResponseEntity<>(new ErrorResponseDto("Error", "Unauthorized"), HttpStatus.UNAUTHORIZED);
+			}
+
+			// Proceed with updating task status
+			UserTask updatedUserTask = userTaskService.updateTaskStatusWithHistory(userId, userTask.getTask().getId(),
+					userTask.getStatus());
+			return new ResponseEntity<>(new SuccessResponseDto("success", "Task status updated", updatedUserTask),
+					HttpStatus.OK);
+		} catch (DataNotFoundException e) {
+			return new ResponseEntity<>(new ErrorResponseDto("Error", "Data not found"), HttpStatus.NOT_FOUND);
+		} catch (Exception e) {
+			return new ResponseEntity<>(new ErrorResponseDto("Error", "Failed to update task status"),
+					HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
 }

@@ -29,7 +29,6 @@ public class UserServiceImplementation implements UserService {
 
 	@Override
 	public User saveUser(User user) {
-		// TODO Auto-generated method stub
 		User user1 = new User();
 		user1.setEmail(user.getEmail());
 		user1.setMob(user.getMob());
@@ -115,4 +114,5 @@ public class UserServiceImplementation implements UserService {
 		}
 
 	}
+
 }

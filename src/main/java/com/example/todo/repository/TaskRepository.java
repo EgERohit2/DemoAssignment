@@ -5,6 +5,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import com.example.todo.dto.TaskDto;
 import com.example.todo.dto.TasksDto;
 import com.example.todo.entities.Task;
 
@@ -15,6 +16,8 @@ public interface TaskRepository extends JpaRepository<Task, Integer> {
 
 	Page<TasksDto> findByNameContainingIgnoreCaseOrderByIdDesc(String trimLeadingWhitespace, Pageable pageable,
 			Class<TasksDto> class1);
+
+	void save(TaskDto task);
 
 	// 04-04-2023
 //	List<Task> findByStatusAndStartDateBetween(TaskStatus status, LocalDate startDate, LocalDate endDate);
