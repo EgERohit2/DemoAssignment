@@ -76,8 +76,15 @@ public interface UserTaskRepository extends JpaRepository<UserTask, Integer> {
 
 //	UserTask findByUserIdAndTaskId(User user, Task task);
 
+	//(workig) - don't touch this
 	@Query(value = "select rid from user_role where uid=?",nativeQuery = true)
 	Long roleId (@Param("uid")int uid);
+	
+	//19-04-2023(checking) 4:00pm
+	@Query(value = "select task_id from user_task where user_id=?;",nativeQuery = true)
+	List<UserTask>tasksId (@Param("user_id")int user_id);
+
+	UserTask findByUserIdAndTaskId(User user1, Task task);
 	
 	
 }

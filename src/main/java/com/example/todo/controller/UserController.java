@@ -1,8 +1,12 @@
 package com.example.todo.controller;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
+import javax.validation.Valid;
+
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,10 +26,16 @@ import com.example.todo.dto.ErrorResponseDto;
 import com.example.todo.dto.SuccessResponseDto;
 import com.example.todo.dto.TaskDto;
 import com.example.todo.dto.UserDto;
+import com.example.todo.dto.UserTaskDto;
 import com.example.todo.entities.Task;
 import com.example.todo.entities.User;
+import com.example.todo.entities.UserTask;
+import com.example.todo.entities.UserTaskHistory;
+import com.example.todo.repository.RoleRepository;
 import com.example.todo.repository.TaskRepository;
 import com.example.todo.repository.UserRepository;
+import com.example.todo.repository.UserTaskHistoryRepository;
+import com.example.todo.repository.UserTaskRepository;
 import com.example.todo.services.TaskService;
 import com.example.todo.services.UserService;
 import com.example.todo.services.UserTaskService;
@@ -33,6 +43,15 @@ import com.example.todo.services.UserTaskService;
 @RestController
 @RequestMapping("/to-do")
 public class UserController {
+
+	@Autowired
+	private RoleRepository roleRepository;
+
+	@Autowired
+	private UserTaskRepository userTaskRepository;
+	
+	@Autowired
+	private UserTaskHistoryRepository userTaskHistoryRepository;
 
 	@Autowired
 	private UserService userService;
@@ -50,10 +69,12 @@ public class UserController {
 	private TaskService taskService;
 
 	@PostMapping("/user/data")
-	public ResponseEntity<?> postAllData(@RequestBody User user) {
+	public ResponseEntity<?> postAllData(@Valid @RequestBody User user) {
 		try {
 			userService.saveUser(user);
-			return new ResponseEntity<>(new SuccessResponseDto("success", "done", null), HttpStatus.CREATED);
+			UserDto dto = new UserDto();
+			BeanUtils.copyProperties(user, dto);
+			return new ResponseEntity<>(new SuccessResponseDto("success", "done", dto), HttpStatus.CREATED);
 		} catch (Exception e) {
 			return new ResponseEntity<>(new ErrorResponseDto("Error ", "No data found"), HttpStatus.BAD_REQUEST);
 		}
@@ -64,9 +85,14 @@ public class UserController {
 		return userService.getAllUsers();
 	}
 
-	@GetMapping("user/data/{id}")
-	public void getDataById(@RequestParam(value = "id") int id, @RequestBody User user) {
+	@GetMapping("user/data")
+	public void getDataById(@RequestParam(value = "id") int id) {
 		userService.getUserById(id);
+	}
+
+	@GetMapping("/userId")
+	public void getUserById(@RequestParam(value = "id") int id) {
+
 	}
 
 	@DeleteMapping("user/data/delete/{id}")
@@ -75,8 +101,7 @@ public class UserController {
 			userService.deleteUser(id);
 			return new ResponseEntity<>(new SuccessResponseDto("success", "deleted", null), HttpStatus.CREATED);
 		} catch (Exception e) {
-			return new ResponseEntity<>(new ErrorResponseDto("Error ", "No data found"),
-					HttpStatus.BAD_REQUEST);
+			return new ResponseEntity<>(new ErrorResponseDto("Error ", "No data found"), HttpStatus.BAD_REQUEST);
 		}
 	}
 
@@ -87,8 +112,7 @@ public class UserController {
 			this.userService.addRoles(user_id, role_id);
 			return new ResponseEntity<>(new SuccessResponseDto("success", "roles assigned", null), HttpStatus.CREATED);
 		} catch (Exception e) {
-			return new ResponseEntity<>(new ErrorResponseDto("Error ", "No data found"),
-					HttpStatus.BAD_REQUEST);
+			return new ResponseEntity<>(new ErrorResponseDto("Error ", "No data found"), HttpStatus.BAD_REQUEST);
 		}
 	}
 
@@ -258,9 +282,22 @@ public class UserController {
 //	}
 
 	// 08-04-2023(working)
-	@GetMapping("/userDto/{id}")
-	public UserDto getUserDtoById(@PathVariable int id) {
-		return this.userService.getUserDtoById(id);
-	}
+	//19-04-2023(checking) -not working properly	
+	@GetMapping("/userDto")
+	public ResponseEntity<?> getUserDtoById(@RequestParam(value = "id") int id,
+			@RequestHeader("Authorization") String token) {
 
+		String username = JwtUtil.parseToken(token.replace("Bearer ", ""));
+		User user = userRepository.findByUsername(username);
+
+		String roleName = roleRepository.name(userTaskRepository.roleId(user.getId()));
+
+		if (roleName.equals("admin")) {
+			UserDto userDto = userService.getUserDtoById(id);
+			return ResponseEntity.ok(userDto);
+
+		}
+		return null;
+	}
+	
 }

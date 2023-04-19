@@ -237,6 +237,41 @@ public class UserTaskServiceImplementation implements UserTaskService {
 		return null;
 	}
 
+	@Override
+	public UserTask updateTaskStatusWithHistory(int userId, int id, TaskStatus status) throws Exception {
+		UserTask userTask = userTaskRepository.findByUserIdAndTaskId(userId, id);
+		if (userTask == null) {
+			throw new DataNotFoundException("UserTask not found for given userId and taskId");
+		}
+		//check if status is already updated pr not 
+		//i.e. - if it is already todo then display todo
+		if (userTask.getStatus() == status) {
+			if (status == TaskStatus.INPROGRESS) {
+				throw new Exception("Task status is already IN_PROGRESS");
+			} else if (status == TaskStatus.TODO) {
+				throw new Exception("Task status is already TO_DO");
+			} else if (status == TaskStatus.DONE) {
+				throw new Exception("Task status is already DONE");
+			}
+		}
+		// Update the status field in UserTask
+		userTask.setStatus(status);
+		UserTask updatedUserTask = userTaskRepository.save(userTask);
+
+		// Create a new UserTaskHistory entity
+		UserTaskHistory userTaskHistory = new UserTaskHistory();
+		userTaskHistory.setUsertask(updatedUserTask);
+		userTaskHistory.setStatus(status);
+		userTaskHistory.setDate(new Date());
+
+		// Save UserTaskHistory entity
+		userTaskHistoryRepository.save(userTaskHistory);
+
+		return updatedUserTask;
+	}
+
+
+	
 	// 05-04-2023
 //	@Override
 //	public List<UserTaskDto> findBySearch(String search) {

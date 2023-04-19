@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.multipart.MultipartException;
 import org.springframework.web.multipart.support.StandardMultipartHttpServletRequest;
 import org.springframework.web.servlet.NoHandlerFoundException;
@@ -29,16 +30,17 @@ import com.example.todo.entities.ErrorLoggerEntity;
 import com.example.todo.entities.MethodEnum;
 import com.example.todo.repository.ErrorloggerRepository;
 
-@ControllerAdvice
+//@ControllerAdvice
+@RestControllerAdvice
 public class AllExceptionHandler {
 
-	 
 	@Autowired
 	private ErrorloggerRepository errorLoggerRepository;
 
 	@ExceptionHandler(DataNotFoundException.class)
 	@ResponseStatus(value = HttpStatus.NOT_FOUND)
-	public @ResponseBody ExceptionResponse handleResourceNotFound(final ResourceNotFoundException exception, final HttpServletRequest request) {
+	public @ResponseBody ExceptionResponse handleResourceNotFound(final ResourceNotFoundException exception,
+			final HttpServletRequest request) {
 
 		ExceptionResponse error = new ExceptionResponse();
 		error.setErrorMessage(exception.getMessage());
@@ -47,7 +49,7 @@ public class AllExceptionHandler {
 
 	}
 
-	//(for reference- cv maker)
+	// (for reference- cv maker)
 //	@ExceptionHandler(MethodArgumentNotValidException.class)
 //	@ResponseStatus(value = HttpStatus.BAD_REQUEST)
 //	public @ResponseBody ErrorResponseDto handleValidatioinException(final MethodArgumentNotValidException exception) {
@@ -66,8 +68,8 @@ public class AllExceptionHandler {
 //		return error;
 //
 //	}
-	
-	//(checking) 18-04-2023
+
+	// (checking) 18-04-2023
 	@ResponseStatus(HttpStatus.BAD_REQUEST)
 	@ExceptionHandler(MethodArgumentNotValidException.class)
 	public Map<String, String> handleMethodArgumentNotValid(MethodArgumentNotValidException ex) {
@@ -82,7 +84,8 @@ public class AllExceptionHandler {
 
 	@ExceptionHandler(HttpRequestMethodNotSupportedException.class)
 	@ResponseStatus(value = HttpStatus.METHOD_NOT_ALLOWED)
-	public @ResponseBody ErrorResponseDto handleMethodNotSupportException(final HttpRequestMethodNotSupportedException exception) {
+	public @ResponseBody ErrorResponseDto handleMethodNotSupportException(
+			final HttpRequestMethodNotSupportedException exception) {
 
 		ErrorResponseDto error = new ErrorResponseDto();
 		error.setMessage("Invalid request, Please check URL");
@@ -126,10 +129,12 @@ public class AllExceptionHandler {
 
 	@ExceptionHandler(Exception.class)
 	@ResponseStatus(value = HttpStatus.INTERNAL_SERVER_ERROR)
-	public @ResponseBody ErrorResponseDto handleException(final Exception exception, HttpServletRequest request) throws IOException {
+	public @ResponseBody ErrorResponseDto handleException(final Exception exception, HttpServletRequest request)
+			throws IOException {
 
 		ErrorLoggerEntity errorRequest = new ErrorLoggerEntity();
-		errorRequest.setBody(request instanceof StandardMultipartHttpServletRequest ? null : request.getReader().lines().collect(Collectors.joining(System.lineSeparator())));
+		errorRequest.setBody(request instanceof StandardMultipartHttpServletRequest ? null
+				: request.getReader().lines().collect(Collectors.joining(System.lineSeparator())));
 		errorRequest.setHost(InetAddress.getLoopbackAddress().getHostAddress());
 		errorRequest.setMessage(exception.getMessage());
 		errorRequest.setMethod(Enum.valueOf(MethodEnum.class, request.getMethod()));
@@ -143,8 +148,4 @@ public class AllExceptionHandler {
 
 	}
 
-
-
-	
-	
 }
