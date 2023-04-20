@@ -4,9 +4,9 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
+import com.example.todo.dto.AddDto;
 import com.example.todo.dto.UserTaskDto;
 import com.example.todo.dto.UserTasksDto;
-import com.example.todo.entities.Task;
 import com.example.todo.entities.TaskStatus;
 import com.example.todo.entities.User;
 import com.example.todo.entities.UserTask;
@@ -55,7 +55,7 @@ public interface UserTaskService {
 	//checking (18=04-2023) 
 	public List<UserTaskDto> getAllUserTaskDtoByUser(User user);
 
-	public UserTask updateTaskStatusWithHistory(int userId, int id, TaskStatus status)throws Exception; 
+	public void updateTaskStatusWithHistory(int userId, int id, TaskStatus status)throws Exception; 
 	
 	
 	 

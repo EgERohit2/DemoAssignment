@@ -8,6 +8,7 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.example.todo.dto.AddDto;
 import com.example.todo.dto.UserTaskDto;
 import com.example.todo.dto.UserTasksDto;
 import com.example.todo.entities.Task;
@@ -238,12 +239,12 @@ public class UserTaskServiceImplementation implements UserTaskService {
 	}
 
 	@Override
-	public UserTask updateTaskStatusWithHistory(int userId, int id, TaskStatus status) throws Exception {
+	public void updateTaskStatusWithHistory(int userId, int id, TaskStatus status) throws Exception {
 		UserTask userTask = userTaskRepository.findByUserIdAndTaskId(userId, id);
 		if (userTask == null) {
-			throw new DataNotFoundException("UserTask not found for given userId and taskId");
+			throw new DataNotFoundException("UserTask not found userId and taskId");
 		}
-		//check if status is already updated pr not 
+		//check if status is already updated inprogress not 
 		//i.e. - if it is already todo then display todo
 		if (userTask.getStatus() == status) {
 			if (status == TaskStatus.INPROGRESS) {
@@ -267,7 +268,6 @@ public class UserTaskServiceImplementation implements UserTaskService {
 		// Save UserTaskHistory entity
 		userTaskHistoryRepository.save(userTaskHistory);
 
-		return updatedUserTask;
 	}
 
 

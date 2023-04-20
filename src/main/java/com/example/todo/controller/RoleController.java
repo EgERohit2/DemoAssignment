@@ -16,7 +16,7 @@ public class RoleController {
 	@Autowired
 	private RoleService roleService;
 
-	@PostMapping("role/data")
+	@PostMapping("/AssignRole")
 	public String postAllData(@RequestBody Role role) {
 		roleService.postAllData(role);
 		return "posted";
