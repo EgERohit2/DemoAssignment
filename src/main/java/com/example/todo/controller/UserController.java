@@ -1,6 +1,5 @@
 package com.example.todo.controller;
 
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -10,6 +9,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -26,11 +26,8 @@ import com.example.todo.dto.ErrorResponseDto;
 import com.example.todo.dto.SuccessResponseDto;
 import com.example.todo.dto.TaskDto;
 import com.example.todo.dto.UserDto;
-import com.example.todo.dto.UserTaskDto;
 import com.example.todo.entities.Task;
 import com.example.todo.entities.User;
-import com.example.todo.entities.UserTask;
-import com.example.todo.entities.UserTaskHistory;
 import com.example.todo.repository.RoleRepository;
 import com.example.todo.repository.TaskRepository;
 import com.example.todo.repository.UserRepository;
@@ -68,7 +65,7 @@ public class UserController {
 	@Autowired
 	private TaskService taskService;
 
-	@PostMapping("/user/data")
+	@PostMapping("/user")
 	public ResponseEntity<?> postAllData(@Valid @RequestBody User user) {
 		try {
 			userService.saveUser(user);
@@ -105,6 +102,7 @@ public class UserController {
 		}
 	}
 
+	@PreAuthorize("hasRole('ROLE_admin')")
 	@PostMapping("/post/assignRoles")
 	public ResponseEntity<?> post(@RequestParam(value = "user_id") int user_id,
 			@RequestParam(value = "role_id") int role_id) {
@@ -116,7 +114,8 @@ public class UserController {
 		}
 	}
 
-	@GetMapping("/userDto/getAllDto")
+	@PreAuthorize("hasRole('ROLE_admin')")
+	@GetMapping("/getAllUserDto")
 	public List<UserDto> getAllDto() {
 		return userService.getAllUserDto();
 	}
@@ -281,10 +280,9 @@ public class UserController {
 //	    }
 //	}
 
-	// 08-04-2023(working)
-	//19-04-2023(checking) -not working properly	
+	// 19-04-2023(working)	get user by id only admin access
 	@GetMapping("/userDto")
-	public ResponseEntity<?> getUserDtoById(@RequestParam(value = "id") int id,
+	public ResponseEntity<UserDto> getUserDtoById(@RequestParam(value = "id") int id,
 			@RequestHeader("Authorization") String token) {
 
 		String username = JwtUtil.parseToken(token.replace("Bearer ", ""));
