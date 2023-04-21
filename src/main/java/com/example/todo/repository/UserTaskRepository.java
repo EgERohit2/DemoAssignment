@@ -8,7 +8,9 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import com.example.todo.dto.AdminDto;
 import com.example.todo.dto.UserTaskDto;
+import com.example.todo.dto.UserTaskDtoAdmin;
 import com.example.todo.entities.Task;
 import com.example.todo.entities.TaskStatus;
 import com.example.todo.entities.User;
@@ -56,17 +58,25 @@ public interface UserTaskRepository extends JpaRepository<UserTask, Integer> {
 			@Param("startDate") List<Date> startDate, @Param("endDate") List<Date> endDate);
 
 	// 07-04-2023(checking)//5 pm
-	@Query(value = "SELECT u.user_name, u.email, u.mobile_number, t.task_name, t.description, t.created_at, ut.status, ut.start_date, ut.end_date " +
-            "FROM demoassignmentsecurity.user_task as ut " +
-            "JOIN demoassignmentsecurity.task as t ON ut.task_id = t.id " +
-            "JOIN demoassignmentsecurity.user as u ON ut.user_id = u.id " +
-            "WHERE (:status IS NULL OR ut.status = :status) " +
-            "AND (:startDate IS NULL OR ut.start_date >= :startDate) " +
-            "AND (:endDate IS NULL OR ut.end_date <= :endDate) " +
-            "AND (:userId IS NULL OR u.id = :userId)", nativeQuery = true)
-	List<Object[]> findAllUserTask(@Param("status") TaskStatus status, 
-                            @Param("startDate") Date startDate, 
-                            @Param("endDate") Date endDate,  @Param("userId") int userId);
+//	@Query(value = "SELECT u.user_name, u.email, u.mobile_number, t.task_name, t.description, t.created_at, ut.status, ut.start_date, ut.end_date " +
+//            "FROM demoassignmentsecurity.user_task as ut " +
+//            "JOIN demoassignmentsecurity.task as t ON ut.task_id = t.id " +
+//            "JOIN demoassignmentsecurity.user as u ON ut.user_id = u.id " +
+//            "WHERE (:status IS NULL OR ut.status = :status) " +
+////            "AND (:startDate IS NULL OR ut.start_date >= :startDate) " +
+////            "AND (:endDate IS NULL OR ut.end_date <= :endDate) " +
+////            "AND (:userId IS NULL OR u.id = :userId)"
+//            , nativeQuery = true)
+//	List<Object[]> findAllUserTask(@Param("status") TaskStatus status, 
+//                            @Param("startDate") Date startDate, 
+//                            @Param("endDate") Date endDate,  @Param("userId") int userId);
+	
+	//21-04-2023(checking)
+	@Query(value = "select t.task_name,t.description,ut.start_date,ut.end_date,ut.status FROM user_task as ut JOIN task as t ON ut.task_id = t.id where ut.user_id=? ",nativeQuery = true)
+	List<Object[]> findAllUserTasksAdmin(@Param("status") TaskStatus status, 
+            @Param("startDate") Date startDate, 
+            @Param("endDate") Date endDate,  @Param("userId") int userId);
+	
 	//10-04-2023 (working)
 	@Query(value =  "SELECT t.task_name, t.description, ut.status FROM user_task AS ut JOIN task AS t ON ut.task_id = t.id JOIN user AS u ON ut.user_id = u.id WHERE ut.status = 'overdue' AND u.id = ?;",nativeQuery = true)
 	List<Object> findTaskByUserDtoAdmin(@Param("id") int id);

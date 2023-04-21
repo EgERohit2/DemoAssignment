@@ -38,7 +38,7 @@ import com.example.todo.services.UserService;
 import com.example.todo.services.UserTaskService;
 
 @RestController
-@RequestMapping("/to-do")
+@RequestMapping("/user")
 public class UserController {
 
 	@Autowired
@@ -65,7 +65,7 @@ public class UserController {
 	@Autowired
 	private TaskService taskService;
 
-	@PostMapping("/user")
+	@PostMapping()
 	public ResponseEntity<?> postAllData(@Valid @RequestBody User user) {
 		try {
 			userService.saveUser(user);
@@ -77,7 +77,7 @@ public class UserController {
 		}
 	}
 
-	@GetMapping("/user")
+	@GetMapping()
 	public List<User> getAllData() {
 		return userService.getAllUsers();
 	}
@@ -296,6 +296,13 @@ public class UserController {
 
 		}
 		return null;
+	}
+	
+	@PreAuthorize("hasRole('ROLE_admin')")
+	@DeleteMapping("/{id}")
+	public ResponseEntity<?> deleteUser(@PathVariable int id){
+	this.userService.deleteUserById(id);
+	return new ResponseEntity<>(new SuccessResponseDto("Completed", "Deleted successfully", null), HttpStatus.OK);
 	}
 	
 }

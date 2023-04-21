@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 
 import com.example.todo.dto.UserDto;
+import com.example.todo.dto.UserTaskDto;
 import com.example.todo.entities.User;
 
 public interface UserService {
@@ -24,6 +25,12 @@ public interface UserService {
 	
 	//08-04-2023(checking)
 	public UserDto getUserDtoById(int id);
+	
+	//21-04-2023(working) 10.30am
+	public void deleteUserById(int id);
+
+//	//21-04-2023(checking) 10.55am
+//	public List<UserTaskDto> getUserDtoById(Long userId);
 
 	
 

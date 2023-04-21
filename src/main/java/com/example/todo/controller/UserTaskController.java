@@ -7,6 +7,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.repository.query.Param;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,11 +23,13 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.example.todo.component.JwtUtil;
 import com.example.todo.dto.AddDto;
+import com.example.todo.dto.AdminDto;
 import com.example.todo.dto.ErrorResponseDto;
 import com.example.todo.dto.SuccessResponseDto;
 import com.example.todo.dto.TaskDto;
 import com.example.todo.dto.TasksDto;
 import com.example.todo.dto.UserTaskDto;
+import com.example.todo.dto.UserTaskDtoAdmin;
 import com.example.todo.dto.UserTasksDto;
 import com.example.todo.entities.Task;
 import com.example.todo.entities.TaskStatus;
@@ -531,36 +534,34 @@ public class UserTaskController {
 //		}
 //	}
 //	
-	
-	//20-04-2023(WORKING)- don't touch it
+
+	// 20-04-2023(WORKING)- don't touch it
 	@PutMapping("/userTask/{userId}")
-	public ResponseEntity<?> updateTaskStatusTesting(
-	        @RequestHeader("Authorization") String token,
-	        @PathVariable("userId") int userId,
-	        @RequestBody AddDto addDto) {
-	    try {
-	        // Extract username from JWT token
-	        String username = JwtUtil.parseToken(token.replace("Bearer ", ""));
-	        User user = userRepository.findByUsername(username);
+	public ResponseEntity<?> updateTaskStatusTesting(@RequestHeader("Authorization") String token,
+			@PathVariable("userId") int userId, @RequestBody AddDto addDto) {
+		try {
+			// Extract username from JWT token
+			String username = JwtUtil.parseToken(token.replace("Bearer ", ""));
+			User user = userRepository.findByUsername(username);
 
-	        // Check if the user is authorized to update task status
-	        if (user == null || (user.getId() != userId
-	                && !roleRepository.name(userTaskRepository.roleId(user.getId())).equals("admin"))) {
-	            return new ResponseEntity<>(new ErrorResponseDto("Error", "Unauthorized"),
-	                    HttpStatus.UNAUTHORIZED);
-	        }
+			// Check if the user is authorized to update task status
+			if (user == null || (user.getId() != userId
+					&& !roleRepository.name(userTaskRepository.roleId(user.getId())).equals("admin"))) {
+				return new ResponseEntity<>(new ErrorResponseDto("Error", "Unauthorized"), HttpStatus.UNAUTHORIZED);
+			}
 
-	        // Update the task status and create a new history entry
-	        userTaskService.updateTaskStatusWithHistory(userId, addDto.getTaskId(), addDto.getStatus());
+			// Update the task status and create a new history entry
+			userTaskService.updateTaskStatusWithHistory(userId, addDto.getTaskId(), addDto.getStatus());
 
-	        return new ResponseEntity<>(new SuccessResponseDto("success", "Task status updated",null), HttpStatus.OK);
-	    } catch (DataNotFoundException e) {
-	        return new ResponseEntity<>(new ErrorResponseDto("Error", "Data not found"), HttpStatus.NOT_FOUND);
-	    } catch (Exception e) {
-	        return new ResponseEntity<>(new ErrorResponseDto("Error", "Failed to update task status"),
-	                HttpStatus.INTERNAL_SERVER_ERROR);
-	    }
+			return new ResponseEntity<>(new SuccessResponseDto("success", "Task status updated", null), HttpStatus.OK);
+		} catch (DataNotFoundException e) {
+			return new ResponseEntity<>(new ErrorResponseDto("Error", "Data not found"), HttpStatus.NOT_FOUND);
+		} catch (Exception e) {
+			return new ResponseEntity<>(new ErrorResponseDto("Error", "Failed to update task status"),
+					HttpStatus.INTERNAL_SERVER_ERROR);
+		}
 	}
+
 	// 20-04-2023(working) - don't touch this
 	@GetMapping("/AllFilterTasks")
 	public ResponseEntity<?> getUserTasks(@RequestParam(value = "status", required = false) TaskStatus status,
@@ -613,4 +614,104 @@ public class UserTaskController {
 		}
 		return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
 	}
+
+	// 20-04-2023(working) - don't touch this
+//		@GetMapping("/AllFilterTasks")
+//		public ResponseEntity<?> getUserTaskss(@RequestParam(value = "status", required = false) TaskStatus status,
+//				@RequestParam(value = "startDate", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date startDate,
+//				@RequestParam(value = "endDate", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date endDate,
+//				@RequestParam(value = "userId", required = false) int userId,
+//				@RequestHeader("Authorization") String token) {
+//
+//			String username = JwtUtil.parseToken(token.replace("Bearer ", ""));
+//			User user = userRepository.findByUsername(username);
+//
+//			if (user == null) {
+//				return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+//			}
+//
+//			String roleName = roleRepository.name(userTaskRepository.roleId(user.getId()));
+//
+//			if (roleName.equals("admin")) {
+//				List<UserTaskDto> tasks = userTaskService.getAllUserTaskDto();
+//
+//				if (status != null) {
+//					tasks = tasks.stream().filter(task -> task.getStatus() == status).collect(Collectors.toList());
+//				}
+//
+//				if (startDate != null) {
+//					tasks = tasks.stream().filter(task -> task.getStartDate().compareTo(startDate) >= 0)
+//							.collect(Collectors.toList());
+//				}
+//
+//				if (endDate != null) {
+//					tasks = tasks.stream().filter(task -> task.getEndDate().compareTo(endDate) <= 0)
+//							.collect(Collectors.toList());
+//				}
+//
+//				return ResponseEntity.ok(tasks);
+//			} else if (roleName.equals("employee")) {
+//				List<TaskDto> taskDtos = new ArrayList<>();
+//				Date currentDate = new Date();
+//
+//				List<UserTask> userTasks = userTaskRepository.findByUser(user);
+//
+//				for (UserTask userTask : userTasks) {
+//					Task task = userTask.getTask();
+//					Date taskStartDate = userTask.getStartDate();
+//					if (taskStartDate != null && currentDate.after(taskStartDate)) {
+//						TaskDto taskDto = new TaskDto(task.getName(), task.getDesc());
+//						taskDtos.add(taskDto);
+//					}
+//				}
+//				return ResponseEntity.ok(taskDtos);
+//			}
+//			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+//		}
+//		
+	// 21-04-2023(checking)
+	@GetMapping("/AllFilterTaskss")
+	public ResponseEntity<?> getUserTasksss(@RequestParam(value = "status", required = false) TaskStatus status,
+			@RequestParam(value = "startDate", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date startDate,
+			@RequestParam(value = "endDate", required = false) @DateTimeFormat(pattern = "yyyy-MM-dd") Date endDate,
+			@RequestParam(value = "userId", required = false) Integer userId,
+			@RequestHeader("Authorization") String token) {
+
+		String username = JwtUtil.parseToken(token.replace("Bearer ", ""));
+		User user = userRepository.findByUsername(username);
+
+		if (user == null) {
+			return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+		}
+
+		String roleName = roleRepository.name(userTaskRepository.roleId(user.getId()));
+
+		if (roleName.equals("admin")) {
+			// 21-04-2023 no converter found (resolved asap)
+			List<Object[]> tasks = userTaskRepository.findAllUserTasksAdmin(status, startDate, endDate, userId);
+			// List<Object[]> tasks = userTaskRepository.findTaskByUserDtoAdmin(status,
+			// startDate, endDate, userId);
+			System.out.println(tasks);
+			List<UserTaskDto> userTaskDtos = tasks.stream().map(task -> new UserTaskDto()).collect(Collectors.toList());
+
+			return ResponseEntity.ok(userTaskDtos);
+		} else if (roleName.equals("employee")) {
+			List<TaskDto> taskDtos = new ArrayList<>();
+			Date currentDate = new Date();
+
+			List<UserTask> userTasks = userTaskRepository.findByUser(user);
+
+			for (UserTask userTask : userTasks) {
+				Task task = userTask.getTask();
+				Date taskStartDate = userTask.getStartDate();
+				if (taskStartDate != null && currentDate.after(taskStartDate)) {
+					TaskDto taskDto = new TaskDto(task.getName(), task.getDesc());
+					taskDtos.add(taskDto);
+				}
+			}
+			return ResponseEntity.ok(taskDtos);
+		}
+		return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+	}
+
 }
