@@ -9,6 +9,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.example.todo.dto.UserDto;
+import com.example.todo.dto.UserTaskDto;
 import com.example.todo.entities.Role;
 import com.example.todo.entities.User;
 import com.example.todo.repository.RoleRepository;
@@ -113,6 +114,12 @@ public class UserServiceImplementation implements UserService {
 			return null;
 		}
 
+	}
+
+	@Override
+	public void deleteUserById(int id) {
+		// TODO Auto-generated method stub
+		this.userRepository.deleteById(id);
 	}
 
 }
