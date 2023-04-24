@@ -9,8 +9,6 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import com.example.todo.dto.AdminDto;
-import com.example.todo.dto.UserTaskDto;
-import com.example.todo.dto.UserTaskDtoAdmin;
 import com.example.todo.entities.Task;
 import com.example.todo.entities.TaskStatus;
 import com.example.todo.entities.User;
@@ -72,11 +70,15 @@ public interface UserTaskRepository extends JpaRepository<UserTask, Integer> {
 //                            @Param("endDate") Date endDate,  @Param("userId") int userId);
 	
 	//21-04-2023(checking)
-	@Query(value = "select t.task_name,t.description,ut.start_date,ut.end_date,ut.status FROM user_task as ut JOIN task as t ON ut.task_id = t.id where ut.user_id=? ",nativeQuery = true)
-	List<Object[]> findAllUserTasksAdmin(@Param("status") TaskStatus status, 
-            @Param("startDate") Date startDate, 
-            @Param("endDate") Date endDate,  @Param("userId") int userId);
-	
+	@Query(value = "select t.task_name,t.description,\r\n"
+			+ "ut.start_date,ut.end_date,ut.status \r\n"
+			+ "FROM user_task as ut \r\n"
+			+ "JOIN task as t \r\n"
+			+ "ON ut.task_id = t.id \r\n"
+			+ "where ut.user_id=?;"
+			,nativeQuery = true)
+	List<AdminDto> findAllUserTasksAdmin(@Param("user_id") int user_id );
+//	
 	//10-04-2023 (working)
 	@Query(value =  "SELECT t.task_name, t.description, ut.status FROM user_task AS ut JOIN task AS t ON ut.task_id = t.id JOIN user AS u ON ut.user_id = u.id WHERE ut.status = 'overdue' AND u.id = ?;",nativeQuery = true)
 	List<Object> findTaskByUserDtoAdmin(@Param("id") int id);
