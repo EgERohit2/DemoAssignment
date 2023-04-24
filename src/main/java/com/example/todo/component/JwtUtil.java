@@ -30,10 +30,11 @@ public class JwtUtil implements Serializable {
 	public String getUsernameFromToken(String token) {
 		return getClaimFromToken(token, Claims::getSubject);
 	}
-	//newly created
+
+	// newly created
 	public static String getUsersnameFromToken(String token) {
-		 Claims claims = Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token).getBody();
-	        return claims.getSubject();
+		Claims claims = Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token).getBody();
+		return claims.getSubject();
 	}
 
 	// retrieve expiration date from jwt token
@@ -80,19 +81,17 @@ public class JwtUtil implements Serializable {
 		final String username = getUsernameFromToken(token);
 		return (username.equals(userDetails.getUsername()) && !isTokenExpired(token));
 	}
-	//this is newly implemented method
-	public static String parseToken(String token) {
-        try {
-            Claims claims = Jwts.parser()
-                    .setSigningKey(secretKey)
-                    .parseClaimsJws(token)
-                    .getBody();
 
-            return claims.getSubject();
-        } catch (Exception e) {
-            // handle exception
-            return null;
-        }
-    }
+	// this is newly implemented method
+	public static String parseToken(String token) {
+		try {
+			Claims claims = Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token).getBody();
+
+			return claims.getSubject();
+		} catch (Exception e) {
+			// handle exception
+			return null;
+		}
+	}
 
 }

@@ -8,7 +8,7 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.example.todo.dto.AddDto;
+import com.example.todo.dto.AdminDto;
 import com.example.todo.dto.UserTaskDto;
 import com.example.todo.dto.UserTasksDto;
 import com.example.todo.entities.Task;
@@ -233,9 +233,9 @@ public class UserTaskServiceImplementation implements UserTaskService {
 
 	//checking(18-04-2023) 
 	@Override
-	public List<UserTaskDto> getAllUserTaskDtoByUser(User user) {
+	public List<AdminDto> getAllUserTaskDtoByUser(int id) {
 		// TODO Auto-generated method stub
-		return null;
+		return userTaskRepository.findAllUserTasksAdmin(id);
 	}
 
 	@Override
