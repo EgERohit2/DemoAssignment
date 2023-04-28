@@ -29,8 +29,6 @@ public interface UserService {
 	//21-04-2023(working) 10.30am
 	public void deleteUserById(int id);
 
-//	//21-04-2023(checking) 10.55am
-//	public List<UserTaskDto> getUserDtoById(Long userId);
 
 	
 
