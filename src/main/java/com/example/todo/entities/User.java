@@ -35,7 +35,7 @@ import lombok.ToString;
 @Getter
 @Setter
 @Entity
-@ToString
+//@ToString
 @Where(clause = "is_active")
 @SQLDelete(sql = "UPDATE User set is_active=false where id=?")
 public class User {
@@ -53,7 +53,7 @@ public class User {
 	@NotNull(message = "password cannot be an empty")
 	private String password;
 	@Column(name = "mobile_number")
-	@Size(min=0,max=10,message = "phone number is not valid")
+	@Size(min = 0, max = 10, message = "phone number is not valid")
 	private String mob;
 	private Boolean isActive = true;
 	@CreationTimestamp
@@ -66,5 +66,10 @@ public class User {
 	@ManyToMany(cascade = CascadeType.MERGE, fetch = FetchType.EAGER)
 	@JoinTable(name = "User_Role", joinColumns = @JoinColumn(name = "uid"), inverseJoinColumns = @JoinColumn(name = "rid"))
 	private List<Role> role = new ArrayList<>();
+
+	@Override
+	public String toString() {
+		return "User [username=" + username + ", email=" + email + "]";
+	}
 
 }

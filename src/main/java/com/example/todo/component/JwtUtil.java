@@ -6,8 +6,12 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
+
+import com.example.todo.entities.User;
+import com.example.todo.repository.UserRepository;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -62,16 +66,23 @@ public class JwtUtil implements Serializable {
 	public String generateToken(UserDetails userDetails) {
 
 		Map<String, Object> claims = new HashMap<>();
-		System.out.println();
+	
 
 		return doGenerateToken(claims, userDetails.getUsername());
 	}
+	
+	@Autowired
+	UserRepository userRepository;
 
 	// while creating the token -
 	// 1. Define claims of the token, like Issuer, Expiration, Subject, and the ID
 	// 2. Sign the JWT using the HS512 algorithm and secret key.
-	private String doGenerateToken(Map<String, Object> claims, String subject) {
-		return Jwts.builder().setClaims(claims).setSubject(subject).setIssuedAt(new Date(System.currentTimeMillis()))
+	private String doGenerateToken(Map<String, Object> claims, String subject) 
+	{
+		User u = userRepository.findByUsername(subject);
+		String email = u.getEmail();
+		
+		return Jwts.builder().setClaims(claims).setSubject(subject).claim("email", email).setIssuedAt(new Date(System.currentTimeMillis()))
 				.setExpiration(new Date(System.currentTimeMillis() + JWT_TOKEN_VALIDITY * 1000))
 				.signWith(SignatureAlgorithm.HS512, secretKey).compact();
 	}
@@ -84,7 +95,8 @@ public class JwtUtil implements Serializable {
 
 	// this is newly implemented method
 	public static String parseToken(String token) {
-		try {
+		try 
+		{
 			Claims claims = Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token).getBody();
 
 			return claims.getSubject();

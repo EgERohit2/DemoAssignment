@@ -92,7 +92,7 @@ public class AllExceptionHandler {
 		error.setMsgKey("invalidRequest");
 		return error;
 
-	}
+	}	
 
 	@ExceptionHandler(AccessDeniedException.class)
 	@ResponseStatus(value = HttpStatus.UNAUTHORIZED)
