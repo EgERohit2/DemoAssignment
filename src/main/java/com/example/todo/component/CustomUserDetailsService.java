@@ -21,6 +21,8 @@ public class CustomUserDetailsService implements UserDetailsService {
 		if (user == null) {
 			throw new UsernameNotFoundException("error-404 not found");
 		}
+		
+		
 		//this is for granting permission to users assigned his task
 		//(i.e. users will only get his task details
 //		 List<GrantedAuthority> authorities = new ArrayList<>();
